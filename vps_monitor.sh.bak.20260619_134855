@@ -50,7 +50,7 @@ format_total_mem() {
 }
 
 read_containers() {
-  docker ps -a --no-trunc --format '{{.ID}}\t{{.Names}}\t{{.State}}\t{{.RunningFor}}\t{{.Status}}'
+  docker ps -a --no-trunc --format '{{.ID}}|{{.Names}}|{{.State}}|{{.RunningFor}}|{{.Status}}'
 }
 
 normalize_state() {
@@ -63,6 +63,35 @@ normalize_state() {
       printf '%s' "${state:-unknown}"
       ;;
   esac
+}
+
+priority_for_state() {
+  local state="${1:-}"
+  case "$state" in
+    running) printf '0' ;;
+    paused) printf '1' ;;
+    exited) printf '2' ;;
+    *) printf '3' ;;
+  esac
+}
+
+mem_bytes_from_human() {
+  local raw="${1:-0}"
+  raw="${raw//,/}"
+  if [[ "$raw" == "0B" || "$raw" == "0" || -z "$raw" ]]; then
+    printf '%s' 0
+    return
+  fi
+
+  awk -v value="$raw" '
+    {
+      if ($0 ~ /GiB$/) { sub(/GiB$/, "", value); print value * 1073741824; exit }
+      if ($0 ~ /MiB$/) { sub(/MiB$/, "", value); print value * 1048576; exit }
+      if ($0 ~ /KiB$/) { sub(/KiB$/, "", value); print value * 1024; exit }
+      if ($0 ~ /B$/) { sub(/B$/, "", value); print value + 0; exit }
+      print value + 0
+    }
+  '
 }
 
 {
@@ -85,8 +114,9 @@ normalize_state() {
   total_cpu_sum=0
   total_mem_sum=0
   total_count=0
+  records_file="$(mktemp)"
 
-  while IFS=$'\t' read -r container_id container_name container_state running_for container_status; do
+  while IFS='|' read -r container_id container_name container_state running_for container_status; do
     [[ -n "${container_id:-}" ]] || continue
 
     container_state="$(normalize_state "$container_state")"
@@ -108,6 +138,7 @@ normalize_state() {
     fi
 
     mem_current="${mem_usage%% /*}"
+    mem_bytes="$(mem_bytes_from_human "$mem_current")"
     uptime_value="$(docker inspect --format '{{.State.StartedAt}}' "$container_id" 2>/dev/null || true)"
     uptime_text="$(human_uptime "$uptime_value")"
 
@@ -119,18 +150,35 @@ normalize_state() {
     total_mem_sum="$(awk "BEGIN { print (${total_mem_sum:-0} + ${mem_percent_numeric:-0}) }")"
     total_count=$((total_count + 1))
 
+    printf '%s|%s|%s|%s|%s|%s|%s|%s|%s\n' \
+      "$(priority_for_state "$container_state")" \
+      "$mem_bytes" \
+      "$(json_escape "$container_name")" \
+      "$(json_escape "$container_state")" \
+      "$(json_escape "$cpu_perc")" \
+      "$(json_escape "$mem_current")" \
+      "$(json_escape "$mem_perc")" \
+      "$(json_escape "$uptime_text")" \
+      "$container_id" >> "$records_file"
+  done < <(read_containers)
+
+  while IFS='|' read -r _priority _mem_bytes container_name container_state cpu_perc mem_current mem_perc uptime_text container_id; do
+    [[ -n "${container_name:-}" ]] || continue
+
     [[ "$first" -eq 1 ]] || printf ',\n'
     first=0
 
     printf '    {\n'
-    printf '      "service_name": "%s",\n' "$(json_escape "$container_name")"
-    printf '      "state": "%s",\n' "$(json_escape "$container_state")"
-    printf '      "cpu": "%s",\n' "$(json_escape "$cpu_perc")"
-    printf '      "mem": "%s",\n' "$(json_escape "$mem_current")"
-    printf '      "mem_percent": "%s",\n' "$(json_escape "$mem_perc")"
-    printf '      "uptime": "%s"\n' "$(json_escape "$uptime_text")"
+    printf '      "service_name": "%s",\n' "$container_name"
+    printf '      "state": "%s",\n' "$container_state"
+    printf '      "cpu": "%s",\n' "$cpu_perc"
+    printf '      "mem": "%s",\n' "$mem_current"
+    printf '      "mem_percent": "%s",\n' "$mem_perc"
+    printf '      "uptime": "%s"\n' "$uptime_text"
     printf '    }'
-  done < <(read_containers)
+  done < <(sort -t '|' -k1,1n -k2,2nr -k3,3 "$records_file")
+
+  rm -f "$records_file"
 
   printf '\n  ],\n'
   printf '  "totals": {\n'
