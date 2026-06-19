@@ -1,0 +1,94 @@
+VPS Monitor - Documentacao Operacional
+=====================================
+
+Visao geral
+-----------
+O recurso VPS Monitor foi desenhado para exibir, no painel Overview do dashboard, o estado atual dos containers/servicos em execucao no VPS. O objetivo e permitir que o frontend leia um arquivo JSON gerado automaticamente no servidor e apresente uma tabela sempre atualizada, sem depender de chamadas manuais, webhook ou sincronizacao via API intermediaria.
+
+Comportamento esperado da funcao VPS_MONITOR
+--------------------------------------------
+A rotina VPS_MONITOR e representada pelo script shell `vps_monitor.sh`, executado no proprio VPS por um loop controlado por systemd a cada 15 segundos. O script deve:
+
+- consultar os containers locais do Docker no host onde esta rodando;
+- incluir containers em estado ativo e tambem containers finalizados, desde que ainda existam no Docker;
+- evitar que um container desapareca da lista apenas por ter sido parado com `docker stop`;
+- gerar um JSON valido com uma lista completa e dinamica de servicos;
+- sobrescrever o arquivo de saida de forma atomica, para evitar leituras parciais pelo frontend;
+- manter o mesmo contrato de dados para o frontend, mesmo quando novos containers surgirem ou containers antigos forem removidos;
+- refletir a realidade do host em tempo quase real, ja que o loop roda a cada 15 segundos.
+
+Fluxo do script SH
+------------------
+O fluxo esperado do `vps_monitor.sh` e:
+
+1. consultar os containers existentes no host;
+2. obter para cada container os dados necessarios do Docker;
+3. calcular os campos exibidos no painel:
+   - `service_name`
+   - `state`
+   - `cpu`
+   - `mem`
+   - `mem_percent`
+   - `uptime`
+4. montar a estrutura JSON final;
+5. gravar o conteudo em `sync/vps_monitor.json` dentro do volume compartilhado do VPS;
+6. substituir o arquivo final somente quando a escrita estiver completa.
+
+O arquivo de saida e consumido diretamente pelo frontend, entao qualquer erro de geracao, parsing ou escrita pode resultar em dados incompletos, colunas deslocadas ou tabela vazia.
+
+Papel do arquivo /sync/vps_monitor.json
+--------------------------------------
+O arquivo `sync/vps_monitor.json` e a fonte de verdade do VPS Monitor no lado da aplicacao.
+
+Ele deve conter:
+
+- metadados do monitor;
+- definicao das colunas da tabela;
+- lista de services/containeres com seus estados;
+- possivelmente um bloco de totais/resumo.
+
+Esse arquivo nao deve ser tratado como cache manual. Ele existe para ser reescrito automaticamente pelo script do VPS e lido pelo frontend sempre que o Overview estiver ativo.
+
+Como o frontend lida com esses dados
+-----------------------------------
+No frontend, o card `VPS Monitor` e exibido na area `Overview`, no topo do painel central, acima de `Active Workflows`.
+
+O comportamento esperado do front e:
+
+- fazer fetch do arquivo JSON gerado pelo backend/endpoint local;
+- montar a tabela de forma dinamica a partir do conteudo de `vps_monitor.json`;
+- respeitar a ordem recebida do JSON;
+- atualizar automaticamente a cada 15 segundos enquanto o Overview estiver visivel;
+- interromper a atualizacao quando o usuario sair do Overview;
+- voltar a buscar os dados imediatamente quando o usuario retornar ao Overview;
+- renderizar apenas o que estiver efetivamente no JSON, sem fixar numero de linhas.
+
+Como os dados aparecem na interface
+-----------------------------------
+No Overview, o card `VPS Monitor` aparece como o primeiro item do painel central.
+
+A tabela exibe as colunas:
+
+- SERVICE NAME
+- STATE
+- CPU
+- MEM
+- MEM%
+- UPTIME
+
+Os valores devem refletir o estado do host e dos containers monitorados. Containers parados continuam visiveis se ainda existirem no Docker. Containers deletados deixam de aparecer.
+
+Resumo dos erros criticos encontrados durante a edicao do .sh
+------------------------------------------------------------
+Durante as iteracoes do script, foram encontrados os seguintes problemas criticos:
+
+- conflito de sintaxe no `awk` ao usar o parametro `exp` dentro de uma funcao auxiliar;
+- deslocamento de colunas ao tentar parsear saida textual do Docker com separadores fragis;
+- perda de alinhamento de campos ao usar `read` com separadores inadequados;
+- JSON truncado ou incompleto quando o script quebrava antes da substituicao final do arquivo;
+- tentativas de ordenacao complexa em shell puro, que aumentaram muito a fragilidade do pipeline;
+- necessidade de voltar a uma versao simples e estavel do script, que apenas coleta e serializa os dados sem reordenacao intermediaria arriscada.
+
+Conclusao
+---------
+O desenho correto do VPS Monitor e manter o script SH simples, confiavel e previsivel, deixando o frontend apenas como consumidor do JSON. O objetivo principal e estabilidade: o script no VPS gera o arquivo, o frontend exibe o arquivo, e a atualizacao automatica mantem a visualizacao consistente enquanto o Overview estiver ativo.
