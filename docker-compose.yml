@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      SYNC_DIR: /app/sync
+      MONITOR_INTERVAL_MS: 15000
+      SHEETS_SYNC_ENABLED: "false"
+      DRIVE_SYNC_ENABLED: "false"
+      GOOGLE_APPLICATION_CREDENTIALS: ""
+      GOOGLE_SHEET_ID: ""
+      GOOGLE_DRIVE_FOLDER_ID: ""
+    volumes:
+      - ./sync:/app/sync
+      - /var/run/docker.sock:/var/run/docker.sock

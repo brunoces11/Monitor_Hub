@@ -1,18 +1,15 @@
-import { useState } from 'react';
 import { PIcon, PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BLUE_GRADIENT, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT } from '../theme';
 
 const navItems = [
   { id: 'overview', label: 'Overview', icon: 'grid' },
-  { id: 'creative-studio', label: 'Creative Studio', icon: 'ai-image' },
-  { id: 'video-animations', label: 'Video Animations', icon: 'ai-video' },
+  { id: 'creative-studio', label: 'Video Publisher', icon: 'upload' },
+  { id: 'thumbnail-creator', label: 'Thumbnail Creator', icon: 'ai-image' },
+  { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
   { id: 'campaign-monitor', label: 'Campaign Monitor', icon: 'chart' },
   { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
   { id: 'workflows', label: 'Workflows', icon: 'arrows' },
   { id: 'agents', label: 'Agents', icon: 'brain' },
-  { id: 'assets', label: 'Assets', icon: 'image' },
-  { id: 'reports', label: 'Reports', icon: 'document' },
-  { id: 'settings', label: 'Settings', icon: 'configurate' },
 ];
 
 const systemStatus = [
@@ -24,12 +21,12 @@ const systemStatus = [
 
 interface SidebarProps {
   collapsed: boolean;
+  active: string;
   onToggle: () => void;
+  onActiveChange: (id: string) => void;
 }
 
-export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
-  const [active, setActive] = useState('overview');
-
+export default function Sidebar({ collapsed, active, onToggle, onActiveChange }: SidebarProps) {
   return (
     <aside
       className="flex flex-col h-full transition-all duration-300"
@@ -61,11 +58,11 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           className="flex items-center justify-center rounded-lg flex-shrink-0"
           style={{ width: 32, height: 32, background: BLUE_GRADIENT }}
         >
-          <PIcon name="ai-spark-filled" size="x-small" color="inherit" theme="dark" aria={{ 'aria-label': 'Monitor Hub' }} style={{ color: '#fff' }} />
+          <PIcon name="ai-spark-filled" size="x-small" color="inherit" theme="dark" aria={{ 'aria-label': 'Operational Hub' }} style={{ color: '#fff' }} />
         </div>
         {!collapsed && (
           <span style={{ color: '#f1f5f9', fontSize: 20.8, fontWeight: 600, lineHeight: 1.1 }}>
-            Monitor Hub
+            Operational Hub
           </span>
         )}
       </button>
@@ -77,7 +74,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
           return (
             <button
               key={item.id}
-              onClick={() => setActive(item.id)}
+              onClick={() => onActiveChange(item.id)}
               className="w-full flex items-center gap-3 rounded-lg mb-0.5 transition-all duration-150"
               style={{
                 padding: collapsed ? '9px 0' : '9px 10px',
@@ -95,7 +92,7 @@ export default function Sidebar({ collapsed, onToggle }: SidebarProps) {
               title={collapsed ? item.label : undefined}
             >
               <PIcon
-                name={item.icon as any}
+                name={item.icon as never}
                 size="small"
                 color="contrast-high"
                 theme="dark"

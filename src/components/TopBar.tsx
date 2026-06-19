@@ -19,7 +19,7 @@ export default function TopBar() {
       <div className="flex flex-col mr-2">
         <div className="flex items-center gap-2">
           <PText size="small" weight="semi-bold" theme="dark" color="primary">
-            Monitor Hub
+            Operational Hub
           </PText>
           <div
             className="flex items-center gap-1 rounded-full px-2 py-0.5"

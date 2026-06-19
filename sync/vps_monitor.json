@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "title": "VPS Monitor",
+  "updated_at": "2026-06-19T00:00:00.000Z",
+  "refresh_interval_ms": 15000,
+  "columns": [
+    {
+      "key": "service_name",
+      "label": "SERVICE NAME"
+    },
+    {
+      "key": "state",
+      "label": "STATE"
+    },
+    {
+      "key": "cpu",
+      "label": "CPU"
+    },
+    {
+      "key": "mem",
+      "label": "MEM"
+    },
+    {
+      "key": "mem_percent",
+      "label": "MEM%"
+    },
+    {
+      "key": "uptime",
+      "label": "UPTIME"
+    }
+  ],
+  "services": [
+    {
+      "service_name": "traefik",
+      "state": "running",
+      "cpu": "1.55%",
+      "mem": "58.74MiB",
+      "mem_percent": "0.74%",
+      "uptime": "10 days"
+    },
+    {
+      "service_name": "Mega Power",
+      "state": "TURBINADO",
+      "cpu": "9.99%",
+      "mem": "3.969MiB",
+      "mem_percent": "0.05%",
+      "uptime": "99 days"
+    },
+    {
+      "service_name": "n9n",
+      "state": "running",
+      "cpu": "0.22%",
+      "mem": "222.2MiB",
+      "mem_percent": "5.55%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "pgadmin",
+      "state": "running",
+      "cpu": "0.05%",
+      "mem": "296.9MiB",
+      "mem_percent": "3.74%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "postgres",
+      "state": "running",
+      "cpu": "0.05%",
+      "mem": "166.7MiB",
+      "mem_percent": "2.10%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "portainer",
+      "state": "running",
+      "cpu": "0.04%",
+      "mem": "38.29MiB",
+      "mem_percent": "0.48%",
+      "uptime": "10 days"
+    },
+    {
+      "service_name": "wp_tmt_org_db",
+      "state": "running",
+      "cpu": "0.03%",
+      "mem": "364.4MiB",
+      "mem_percent": "4.59%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "wp_pmt_org_db",
+      "state": "running",
+      "cpu": "0.02%",
+      "mem": "222.6MiB",
+      "mem_percent": "2.80%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "wp_pmt_org",
+      "state": "running",
+      "cpu": "0.01%",
+      "mem": "535.4MiB",
+      "mem_percent": "6.74%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "wp_tmt_org",
+      "state": "running",
+      "cpu": "0.01%",
+      "mem": "524.1MiB",
+      "mem_percent": "6.60%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "dante",
+      "state": "running",
+      "cpu": "0.00%",
+      "mem": "73.69MiB",
+      "mem_percent": "0.93%",
+      "uptime": "11 days"
+    },
+    {
+      "service_name": "grafana",
+      "state": "exited",
+      "cpu": "0.00%",
+      "mem": "0B",
+      "mem_percent": "0.00%",
+      "uptime": "-"
+    },
+    {
+      "service_name": "lf142",
+      "state": "exited",
+      "cpu": "0.00%",
+      "mem": "0B",
+      "mem_percent": "0.00%",
+      "uptime": "-"
+    },
+    {
+      "service_name": "metabase",
+      "state": "exited",
+      "cpu": "99.00%",
+      "mem": "0B",
+      "mem_percent": "0.00%",
+      "uptime": "-"
+    }
+  ],
+  "totals": {
+    "service_name": "",
+    "state": "Total CPU",
+    "cpu": "33%",
+    "mem": "Total Mem",
+    "mem_percent": "45%",
+    "uptime": "-"
+  }
+}
