@@ -27,6 +27,18 @@ const defaultVpsMonitor = {
   services: [],
   totals: null,
 };
+const defaultServiceMonitor = {
+  schema_version: 1,
+  title: 'Service Monitor',
+  updated_at: null,
+  refresh_interval_ms: Number(process.env.MONITOR_INTERVAL_MS || 15000),
+  columns: [
+    { key: 'service_name', label: 'SERVICE NAME' },
+    { key: 'stats', label: 'STATS' },
+    { key: 'last_check', label: 'LAST CHECK' },
+  ],
+  services: [],
+};
 
 const app = express();
 
@@ -42,6 +54,11 @@ async function ensureSyncStructure() {
   if (!(await fs.pathExists(vpsMonitorPath))) {
     await fs.writeJson(vpsMonitorPath, defaultVpsMonitor, { spaces: 2 });
   }
+
+  const serviceMonitorPath = path.join(syncDir, 'service_monitor.json');
+  if (!(await fs.pathExists(serviceMonitorPath))) {
+    await fs.writeJson(serviceMonitorPath, defaultServiceMonitor, { spaces: 2 });
+  }
 }
 
 app.get('/api/health', (_req, res) => {
@@ -53,6 +70,14 @@ app.get('/api/sync/vps-monitor', async (_req, res) => {
   const data = (await fs.pathExists(filePath))
     ? await fs.readJson(filePath)
     : defaultVpsMonitor;
+  res.json(data);
+});
+
+app.get('/api/sync/service-monitor', async (_req, res) => {
+  const filePath = path.join(syncDir, 'service_monitor.json');
+  const data = (await fs.pathExists(filePath))
+    ? await fs.readJson(filePath)
+    : defaultServiceMonitor;
   res.json(data);
 });
 

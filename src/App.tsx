@@ -9,6 +9,7 @@ import ChannelRevenueChart from './components/ChannelRevenueChart';
 import ActivityFeed from './components/ActivityFeed';
 import AgentHealthPanel from './components/AgentHealthPanel';
 import VpsMonitorCard from './components/VpsMonitorCard';
+import ServiceMonitorCard from './components/ServiceMonitorCard';
 import {
   creativeGenerationData,
   videoAnimationsData,
@@ -65,7 +66,14 @@ export default function App() {
 function OverviewPanel() {
   return (
     <>
-      <VpsMonitorCard active />
+      <div className="grid gap-5 items-start mb-8" style={{ gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)' }}>
+        <div style={{ minWidth: 0 }}>
+          <VpsMonitorCard active />
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <ServiceMonitorCard active />
+        </div>
+      </div>
 
       <SectionLabel label="Active Workflows" />
       <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>

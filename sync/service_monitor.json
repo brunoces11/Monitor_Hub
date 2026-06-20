@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "title": "Service Monitor",
+  "updated_at": "2026-06-19T00:00:00.000Z",
+  "refresh_interval_ms": 15000,
+  "columns": [
+    {
+      "key": "service_name",
+      "label": "SERVICE NAME"
+    },
+    {
+      "key": "stats",
+      "label": "STATS"
+    },
+    {
+      "key": "last_check",
+      "label": "LAST CHECK"
+    }
+  ],
+  "services": [
+    {
+      "service_name": "MetaADs",
+      "stats": "online",
+      "last_check": "14:05:11"
+    },
+    {
+      "service_name": "Google Ads",
+      "stats": "online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "N8N endpoint",
+      "stats": "degraded",
+      "last_check": "14:04:52"
+    },
+    {
+      "service_name": "Openclaw API",
+      "stats": "online",
+      "last_check": "14:05:03"
+    },
+    {
+      "service_name": "OpenAI",
+      "stats": "online",
+      "last_check": "14:05:24"
+    },
+    {
+      "service_name": "Hud Monitor",
+      "stats": "offline",
+      "last_check": "14:03:47"
+    }
+  ]
+}
