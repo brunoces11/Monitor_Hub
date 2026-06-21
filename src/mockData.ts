@@ -187,11 +187,20 @@ export const userActivityFeed = [
   {
     id: 3,
     user: 'Ana',
-    action: 'Video animation workflow moved to queued state',
+    action: 'queued a video workflow',
     target: 'Product Launch Reel',
     time: '15 min ago',
     status: 'warning' as const,
     icon: 'ai-video',
+  },
+  {
+    id: 7,
+    user: 'Marina',
+    action: 'reviewed campaign assets',
+    target: 'Facebook Ads refresh',
+    time: '27 min ago',
+    status: 'success' as const,
+    icon: 'check',
   },
 ];
 

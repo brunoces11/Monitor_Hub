@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { PText, PIcon } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT } from '../theme';
 
@@ -24,18 +25,65 @@ const statusStyles: Record<string, { dot: string; iconColor: string }> = {
   error: { dot: '#f87171', iconColor: '#f87171' },
 };
 
+const loggedUsers = [
+  { name: 'Joao', loggedAt: '07:08 AM' },
+  { name: 'Ana', loggedAt: '07:14 AM' },
+  { name: 'Marina', loggedAt: '07:19 AM' },
+];
+
 export default function ActivityFeed({ items, title = 'Recent Activity' }: ActivityFeedProps) {
+  const [showLoggedUsers, setShowLoggedUsers] = useState(false);
+
   return (
     <div
       className="rounded-2xl p-5 flex flex-col gap-4"
       style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <PText size="medium" weight="semi-bold" theme="dark" color="primary">
           {title}
         </PText>
-        <div className="rounded-full px-2 py-0.5" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
-          <span style={{ fontSize: 10, fontWeight: 600, color: BLUE_PRIMARY, letterSpacing: '0.06em' }}>LIVE</span>
+        <div className="relative">
+          <button
+            className="flex items-center gap-1.5 rounded-full px-2 py-0.5"
+            style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}`, cursor: 'pointer' }}
+            onClick={() => setShowLoggedUsers((value) => !value)}
+            aria-expanded={showLoggedUsers}
+            aria-label="Logged users"
+          >
+            <span style={{ fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.48)' }}>
+              Logged users: 3
+            </span>
+            <PIcon name="arrow-compact-down" size="x-small" color="contrast-medium" theme="dark" aria={{ 'aria-label': 'expand' }} />
+          </button>
+
+          {showLoggedUsers && (
+            <div
+              className="absolute right-0 top-full mt-2 rounded-xl p-2 flex flex-col gap-1"
+              style={{
+                width: 190,
+                background: SURFACE_RAISED,
+                border: `1px solid ${BORDER_DEFAULT}`,
+                boxShadow: '0 16px 34px rgba(0,0,0,0.32)',
+                zIndex: 20,
+              }}
+            >
+              {loggedUsers.map((user) => (
+                <div
+                  key={user.name}
+                  className="flex items-center justify-between gap-3 rounded-lg px-2 py-1.5"
+                  style={{ background: 'rgba(255,255,255,0.03)' }}
+                >
+                  <PText size="xx-small" weight="semi-bold" theme="dark" color="primary">
+                    {user.name}
+                  </PText>
+                  <PText size="xx-small" theme="dark" color="contrast-medium">
+                    {user.loggedAt}
+                  </PText>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

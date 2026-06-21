@@ -107,7 +107,7 @@ export default function VideoAnimationsPanel({
                 width: '100%',
                 height: '100%',
                 background: `repeating-linear-gradient(90deg, rgba(90,118,241,0.2) 0px, rgba(90,118,241,0.2) 8px, transparent 8px, transparent 16px)`,
-                borderRadius: 9999,
+                borderRadius: 4,
               }}
             />
           ) : (
@@ -116,7 +116,7 @@ export default function VideoAnimationsPanel({
                 width: `${progress}%`,
                 height: '100%',
                 background: `linear-gradient(90deg, ${BLUE_SECONDARY}, ${BLUE_PRIMARY})`,
-                borderRadius: 9999,
+                borderRadius: 4,
                 transition: 'width 0.6s ease',
               }}
             />

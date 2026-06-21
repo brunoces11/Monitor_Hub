@@ -112,7 +112,7 @@ export default function CreativeGenerationPanel({
               width: `${progress}%`,
               height: '100%',
               background: `linear-gradient(90deg, ${BLUE_PRIMARY}, ${BLUE_SECONDARY})`,
-              borderRadius: 9999,
+              borderRadius: 4,
               transition: 'width 0.6s ease',
             }}
           />

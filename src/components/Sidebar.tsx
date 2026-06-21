@@ -107,7 +107,13 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
         })}
       </nav>
 
-      <div className="mx-2 mb-3 flex items-center gap-2">
+      <div
+        className="mx-2 mb-3 flex gap-2"
+        style={{
+          alignItems: 'center',
+          flexDirection: collapsed ? 'column' : 'row',
+        }}
+      >
         <button
           className="relative flex items-center justify-center rounded-xl"
           style={{
@@ -157,12 +163,14 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
         <button
           className="flex items-center gap-2 rounded-xl min-w-0"
           style={{
+            width: collapsed ? 38 : undefined,
             height: 38,
             background: SURFACE_RAISED,
             border: `1px solid ${BORDER_DEFAULT}`,
             cursor: 'pointer',
-            flex: 1,
+            flex: collapsed ? '0 0 auto' : 1,
             padding: '6px 8px',
+            justifyContent: collapsed ? 'center' : 'flex-start',
           }}
           onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
           onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
@@ -174,18 +182,13 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           >
             JO
           </div>
-          <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
-            Joao
-          </PText>
+          {!collapsed && (
+            <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
+              Joao
+            </PText>
+          )}
         </button>
       </div>
-
-      {collapsed && (
-        <div className="flex flex-col items-center gap-2 pb-3 pt-2">
-          <div className="rounded-full" style={{ width: 4, height: 4, background: BLUE_PRIMARY, opacity: 0.6 }} />
-          <div className="rounded-full" style={{ width: 4, height: 4, background: 'rgba(255,255,255,0.18)' }} />
-        </div>
-      )}
     </aside>
   );
 }

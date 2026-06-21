@@ -10,6 +10,26 @@ html, body, #root {
   scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
 }
 
+.rounded-2xl {
+  border-radius: 0.6rem !important;
+}
+
+.rounded-xl {
+  border-radius: 0.45rem !important;
+}
+
+.rounded-lg {
+  border-radius: 0.3rem !important;
+}
+
+.rounded-md {
+  border-radius: 0.225rem !important;
+}
+
+.rounded-full {
+  border-radius: 0.6rem !important;
+}
+
 *::-webkit-scrollbar {
   width: 8px;
   height: 8px;

@@ -9,6 +9,7 @@ import ActivityFeed from './components/ActivityFeed';
 import AgentHealthPanel from './components/AgentHealthPanel';
 import VpsMonitorCard from './components/VpsMonitorCard';
 import ServiceMonitorCard from './components/ServiceMonitorCard';
+import VideoPublisherTable from './components/VideoPublisherTable';
 import {
   creativeGenerationData,
   videoAnimationsData,
@@ -51,7 +52,8 @@ export default function App() {
           <div className="relative" style={{ zIndex: 1, maxWidth: 1400 }}>
             {activeSection === 'overview' && <OverviewPanel />}
             {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
-            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && (
+            {activeSection === 'creative-studio' && <VideoPublisherPanel />}
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>
@@ -137,6 +139,15 @@ function CampaignMonitorPanel() {
           funnelData={facebookCampaignData.funnelData}
         />
       </div>
+    </>
+  );
+}
+
+function VideoPublisherPanel() {
+  return (
+    <>
+      <SectionLabel label="Video Publisher" />
+      <VideoPublisherTable />
     </>
   );
 }

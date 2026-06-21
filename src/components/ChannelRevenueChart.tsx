@@ -51,7 +51,7 @@ export default function ChannelRevenueChart({ data }: ChannelRevenueChartProps) 
                     width: `${pct}%`,
                     height: '100%',
                     background: fill,
-                    borderRadius: 9999,
+                    borderRadius: 4,
                   }}
                 />
               </div>
