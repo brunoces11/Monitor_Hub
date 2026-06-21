@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { PIcon, PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BLUE_SECONDARY, BLUE_GRADIENT, SURFACE_RAISED, BORDER_DEFAULT } from '../theme';
 
@@ -20,6 +21,17 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ collapsed, active, onToggle, onActiveChange }: SidebarProps) {
+  const [sidebarTooltip, setSidebarTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
+
+  const showSidebarTooltip = (label: string, target: HTMLElement) => {
+    const rect = target.getBoundingClientRect();
+    setSidebarTooltip({
+      label,
+      top: rect.top + rect.height / 2,
+      left: rect.right + 9,
+    });
+  };
+
   return (
     <aside
       className="flex flex-col h-full transition-all duration-300"
@@ -28,6 +40,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
         flexShrink: 0,
         background: '#0d0d12',
         borderRight: `1px solid ${BORDER_DEFAULT}`,
+        overflow: 'hidden',
       }}
     >
       {/* Logo */}
@@ -46,6 +59,10 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           paddingRight: 12,
         }}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        onMouseEnter={(e) => showSidebarTooltip(collapsed ? 'Expand sidebar' : 'Collapse sidebar', e.currentTarget)}
+        onMouseLeave={() => setSidebarTooltip(null)}
+        onFocus={(e) => showSidebarTooltip(collapsed ? 'Expand sidebar' : 'Collapse sidebar', e.currentTarget)}
+        onBlur={() => setSidebarTooltip(null)}
       >
         <div
           className="flex items-center justify-center rounded-lg flex-shrink-0"
@@ -61,7 +78,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
       </button>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-2 px-2">
+      <nav className="flex-1 py-2 px-2" style={{ overflow: 'hidden' }}>
         {navItems.map((item) => {
           const isActive = active === item.id;
           return (
@@ -77,12 +94,15 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                 cursor: 'pointer',
               }}
               onMouseEnter={(e) => {
+                showSidebarTooltip(item.label, e.currentTarget);
                 if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.03)';
               }}
               onMouseLeave={(e) => {
+                setSidebarTooltip(null);
                 if (!isActive) (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
               }}
-              title={collapsed ? item.label : undefined}
+              onFocus={(e) => showSidebarTooltip(item.label, e.currentTarget)}
+              onBlur={() => setSidebarTooltip(null)}
             >
               <PIcon
                 name={item.icon as never}
@@ -124,8 +144,16 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
             cursor: 'pointer',
             flexShrink: 0,
           }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
+          onMouseEnter={(e) => {
+            showSidebarTooltip('Notifications', e.currentTarget);
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
+          }}
+          onMouseLeave={(e) => {
+            setSidebarTooltip(null);
+            (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
+          }}
+          onFocus={(e) => showSidebarTooltip('Notifications', e.currentTarget)}
+          onBlur={() => setSidebarTooltip(null)}
           aria-label="Notifications"
         >
           <PIcon name="bell" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'notifications' }} />
@@ -147,8 +175,16 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
             cursor: 'pointer',
             flexShrink: 0,
           }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
+          onMouseEnter={(e) => {
+            showSidebarTooltip('Email notifications', e.currentTarget);
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
+          }}
+          onMouseLeave={(e) => {
+            setSidebarTooltip(null);
+            (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
+          }}
+          onFocus={(e) => showSidebarTooltip('Email notifications', e.currentTarget)}
+          onBlur={() => setSidebarTooltip(null)}
           aria-label="Email notifications"
         >
           <PIcon name="email" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'email notifications' }} />
@@ -172,8 +208,16 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
             padding: '6px 8px',
             justifyContent: collapsed ? 'center' : 'flex-start',
           }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
+          onMouseEnter={(e) => {
+            showSidebarTooltip('User profile', e.currentTarget);
+            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
+          }}
+          onMouseLeave={(e) => {
+            setSidebarTooltip(null);
+            (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
+          }}
+          onFocus={(e) => showSidebarTooltip('User profile', e.currentTarget)}
+          onBlur={() => setSidebarTooltip(null)}
           aria-label="User menu"
         >
           <div
@@ -189,6 +233,18 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           )}
         </button>
       </div>
+
+      {sidebarTooltip && (
+        <div
+          className="hub-floating-tooltip"
+          style={{
+            top: sidebarTooltip.top,
+            left: sidebarTooltip.left,
+          }}
+        >
+          {sidebarTooltip.label}
+        </div>
+      )}
     </aside>
   );
 }

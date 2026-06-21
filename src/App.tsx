@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from './components/Sidebar';
+import RightSidebar from './components/RightSidebar';
 import CreativeGenerationPanel from './components/CreativeGenerationPanel';
 import VideoAnimationsPanel from './components/VideoAnimationsPanel';
 import CampaignCard from './components/CampaignCard';
@@ -36,7 +37,18 @@ const sectionLabels: Record<string, string> = {
 
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [rightChatExpanded, setRightChatExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
+
+  const handleRightChatToggle = () => {
+    setRightChatExpanded((current) => {
+      const next = !current;
+      if (next) {
+        setSidebarCollapsed(true);
+      }
+      return next;
+    });
+  };
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: '#0d0d12', color: '#f1f5f9' }}>
@@ -59,6 +71,8 @@ export default function App() {
           </div>
         </main>
       </div>
+
+      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} />
     </div>
   );
 }
@@ -146,7 +160,6 @@ function CampaignMonitorPanel() {
 function VideoPublisherPanel() {
   return (
     <>
-      <SectionLabel label="Video Publisher" />
       <VideoPublisherTable />
     </>
   );
