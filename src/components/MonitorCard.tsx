@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD } from '../theme';
 
@@ -50,21 +50,43 @@ function isStatusColumn(columnKey: string) {
 
 function getColumnWidth(column: MonitorColumn, columns: MonitorColumn[]) {
   const columnKeys = columns.map((item) => item.key);
+  const isApiMonitorTable = columnKeys.includes('last_check');
 
   if (column.key === 'service_name' || column.key === 'name') {
-    return columnKeys.includes('last_check') ? '50%' : '31%';
+    return isApiMonitorTable ? 'calc(100% - 144px)' : '22%';
   }
 
   if (column.key === 'stats' || column.key === 'state' || column.key === 'cpu' || column.key === 'mem_percent') {
+    if (isApiMonitorTable && column.key === 'stats') return '66px';
     if (column.key === 'stats') return '25%';
     if (column.key === 'state') return '18%';
     return '11%';
   }
 
   if (column.key === 'mem') return '14%';
-  if (column.key === 'uptime' || column.key === 'last_check') return columnKeys.includes('last_check') ? '24%' : '17%';
+  if (isApiMonitorTable && column.key === 'last_check') return '66px';
+  if (column.key === 'uptime' || column.key === 'last_check') return '11%';
 
   return `${Math.max(10, Math.floor(100 / columns.length))}%`;
+}
+
+function renderMemoryValue(value: string) {
+  const match = value.trim().match(/^([\d.]+)\s*MiB$/i);
+  if (!match) return value;
+
+  return (
+    <span>
+      {match[1]}{' '}
+      <span style={{ color: 'rgba(255,255,255,0.62)', fontSize: '0.8em' }}>
+        MB
+      </span>
+    </span>
+  );
+}
+
+function renderCellContent(columnKey: string, value: string): ReactNode {
+  if (columnKey === 'mem') return renderMemoryValue(value);
+  return value;
 }
 
 export default function MonitorCard({
@@ -135,10 +157,11 @@ export default function MonitorCard({
   const rows = data?.services ?? data?.containers ?? [];
   const services = sortRows ? sortRows(rows) : rows;
   const title = data?.title || fallbackTitle;
+  const lastReadTime = lastReadAt || '-';
 
   return (
-    <section
-      className="rounded-2xl p-5 h-full"
+      <section
+      className="rounded-2xl p-4 h-full"
       style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}
       aria-label={title}
     >
@@ -152,9 +175,28 @@ export default function MonitorCard({
           </PText>
         </div>
 
-        <div className="flex flex-col items-start gap-1 min-w-0 sm:items-end">
-          <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace' }}>
-            {loading ? 'reading...' : `last read ${lastReadAt || '-'}`}
+        <div className="flex flex-col items-start gap-0.5 min-w-0 sm:items-end">
+          <span
+            style={{
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.36)',
+              fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
+              textAlign: 'right',
+              lineHeight: 1.05,
+            }}
+          >
+            last read
+          </span>
+          <span
+            style={{
+              fontSize: 11,
+              color: 'rgba(255,255,255,0.78)',
+              fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
+              textAlign: 'right',
+              lineHeight: 1.05,
+            }}
+          >
+            {loading ? 'reading...' : lastReadTime}
           </span>
           {error && (
             <span style={{ fontSize: 11, color: '#F87171', fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace' }}>
@@ -183,14 +225,14 @@ export default function MonitorCard({
           <thead>
             <tr>
               {columns.map((column) => (
-                <th
+                  <th
                   key={column.key}
                   scope="col"
                   style={{
                     color: 'rgba(255,255,255,0.46)',
                     fontWeight: 700,
                     textAlign: 'left',
-                    padding: '6px 8px',
+                    padding: '5px 7px',
                     borderBottom: `1px solid ${BORDER_DEFAULT}`,
                     whiteSpace: 'normal',
                     wordBreak: 'break-word',
@@ -218,14 +260,14 @@ export default function MonitorCard({
                         style={{
                           color: shouldColorStatus ? getStatusColor(cellValue) : 'rgba(255,255,255,0.78)',
                           fontWeight: shouldColorStatus ? 700 : 500,
-                          padding: '4px 8px',
+                          padding: '3px 7px',
                           borderBottom: `1px solid ${BORDER_SUBTLE}`,
                           whiteSpace: 'normal',
                           wordBreak: 'break-word',
                           overflowWrap: 'anywhere',
                         }}
                       >
-                        {cellValue}
+                        {renderCellContent(column.key, cellValue)}
                       </td>
                     );
                   })}
@@ -240,14 +282,14 @@ export default function MonitorCard({
                     style={{
                       color: BLUE_PRIMARY,
                       fontWeight: 700,
-                      padding: '5px 8px 1px',
+                      padding: '4px 7px 1px',
                       borderTop: `1px solid ${BORDER_DEFAULT}`,
                       whiteSpace: 'normal',
                       wordBreak: 'break-word',
                       overflowWrap: 'anywhere',
                     }}
                   >
-                    {formatCellValue(data.totals?.[column.key])}
+                    {renderCellContent(column.key, formatCellValue(data.totals?.[column.key]))}
                   </td>
                 ))}
               </tr>

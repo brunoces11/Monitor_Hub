@@ -60,8 +60,8 @@ export default function App() {
       />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <main className="flex-1 overflow-y-auto" style={{ padding: '28px 32px' }}>
-          <div className="relative" style={{ zIndex: 1, maxWidth: 1400 }}>
+        <main className="flex-1 overflow-y-auto" style={{ padding: '20px 8px 8px' }}>
+          <div className="relative" style={{ zIndex: 1, maxWidth: '100%' }}>
             {activeSection === 'overview' && <OverviewPanel />}
             {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
             {activeSection === 'creative-studio' && <VideoPublisherPanel />}
