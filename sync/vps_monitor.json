@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "title": "VPS Monitor",
+  "title": "Server Monitor",
   "updated_at": "2026-06-19T00:00:00.000Z",
   "refresh_interval_ms": 15000,
   "columns": [

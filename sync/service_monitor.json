@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "title": "Service Monitor",
+  "title": "API Monitor",
   "updated_at": "2026-06-19T00:00:00.000Z",
   "refresh_interval_ms": 15000,
   "columns": [
@@ -19,17 +19,17 @@
   ],
   "services": [
     {
-      "service_name": "MetaADs",
+      "service_name": "Meta ADs API",
       "stats": "online",
       "last_check": "14:05:11"
     },
     {
-      "service_name": "Google Ads",
+      "service_name": "Google ADs API",
       "stats": "online",
       "last_check": "14:05:18"
     },
     {
-      "service_name": "N8N endpoint",
+      "service_name": "N8N API",
       "stats": "degraded",
       "last_check": "14:04:52"
     },
@@ -39,12 +39,12 @@
       "last_check": "14:05:03"
     },
     {
-      "service_name": "OpenAI",
+      "service_name": "OpenAI API",
       "stats": "online",
       "last_check": "14:05:24"
     },
     {
-      "service_name": "Hud Monitor",
+      "service_name": "Hud Monitor API",
       "stats": "offline",
       "last_check": "14:03:47"
     }

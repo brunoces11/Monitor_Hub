@@ -75,6 +75,10 @@ function OverviewPanel() {
         </div>
       </div>
 
+      <div className="mb-8">
+        <AgentHealthPanel {...agentHealthData} />
+      </div>
+
       <SectionLabel label="Active Workflows" />
       <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
         <CreativeGenerationPanel {...creativeGenerationData} />
@@ -124,10 +128,6 @@ function OverviewPanel() {
         </div>
       </div>
 
-      <div className="mt-8 mb-10">
-        <SectionLabel label="Agent Infrastructure" />
-        <AgentHealthPanel {...agentHealthData} />
-      </div>
     </>
   );
 }

@@ -19,7 +19,7 @@ export default function VpsMonitorCard({ active }: VpsMonitorCardProps) {
       active={active}
       endpoint="/api/sync/vps-monitor"
       fallbackColumns={fallbackColumns}
-      fallbackTitle="VPS Monitor"
+      fallbackTitle="Server Monitor"
       tableMinWidth={760}
     />
   );

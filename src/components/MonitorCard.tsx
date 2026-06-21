@@ -212,7 +212,7 @@ export default function MonitorCard({
                   <td
                     key={column.key}
                     style={{
-                      color: column.key === 'state' || column.key === 'mem' ? BLUE_PRIMARY : 'rgba(255,255,255,0.86)',
+                      color: BLUE_PRIMARY,
                       fontWeight: 700,
                       padding: '5px 10px 1px',
                       borderTop: `1px solid ${BORDER_DEFAULT}`,

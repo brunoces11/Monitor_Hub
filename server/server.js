@@ -13,7 +13,7 @@ const distDir = path.resolve(rootDir, 'dist');
 const port = Number(process.env.PORT || 3000);
 const defaultVpsMonitor = {
   schema_version: 1,
-  title: 'VPS Monitor',
+  title: 'Server Monitor',
   updated_at: null,
   refresh_interval_ms: Number(process.env.MONITOR_INTERVAL_MS || 15000),
   columns: [
@@ -29,7 +29,7 @@ const defaultVpsMonitor = {
 };
 const defaultServiceMonitor = {
   schema_version: 1,
-  title: 'Service Monitor',
+  title: 'API Monitor',
   updated_at: null,
   refresh_interval_ms: Number(process.env.MONITOR_INTERVAL_MS || 15000),
   columns: [
