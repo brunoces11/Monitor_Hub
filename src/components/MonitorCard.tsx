@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { PIcon, PText } from '@porsche-design-system/components-react';
+import { PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD } from '../theme';
 
 export type MonitorColumn = {
@@ -25,7 +25,6 @@ interface MonitorCardProps {
   fallbackColumns: MonitorColumn[];
   fallbackTitle: string;
   sortRows?: (rows: MonitorRow[]) => MonitorRow[];
-  tableMinWidth?: number;
 }
 
 const defaultRefreshInterval = 15000;
@@ -49,13 +48,31 @@ function isStatusColumn(columnKey: string) {
   return ['state', 'status', 'stats'].includes(columnKey);
 }
 
+function getColumnWidth(column: MonitorColumn, columns: MonitorColumn[]) {
+  const columnKeys = columns.map((item) => item.key);
+
+  if (column.key === 'service_name' || column.key === 'name') {
+    return columnKeys.includes('last_check') ? '50%' : '31%';
+  }
+
+  if (column.key === 'stats' || column.key === 'state' || column.key === 'cpu' || column.key === 'mem_percent') {
+    if (column.key === 'stats') return '25%';
+    if (column.key === 'state') return '18%';
+    return '11%';
+  }
+
+  if (column.key === 'mem') return '14%';
+  if (column.key === 'uptime' || column.key === 'last_check') return columnKeys.includes('last_check') ? '24%' : '17%';
+
+  return `${Math.max(10, Math.floor(100 / columns.length))}%`;
+}
+
 export default function MonitorCard({
   active,
   endpoint,
   fallbackColumns,
   fallbackTitle,
   sortRows,
-  tableMinWidth = 760,
 }: MonitorCardProps) {
   const [data, setData] = useState<MonitorData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -125,20 +142,17 @@ export default function MonitorCard({
       style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}
       aria-label={title}
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="flex items-center gap-2.5">
-          <PIcon name="grid" size="small" color="inherit" theme="dark" aria={{ 'aria-label': title }} style={{ color: BLUE_PRIMARY }} />
-          <div>
-            <PText size="medium" weight="semi-bold" theme="dark" color="primary">
-              {title}
-            </PText>
-            <PText size="xx-small" theme="dark" color="contrast-medium">
-              {services.length} services monitored
-            </PText>
-          </div>
+      <div className="flex flex-col gap-3 mb-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <PText size="medium" weight="semi-bold" theme="dark" color="primary">
+            {title}
+          </PText>
+          <PText size="xx-small" theme="dark" color="contrast-medium">
+            {services.length} services monitored
+          </PText>
         </div>
 
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-start gap-1 min-w-0 sm:items-end">
           <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.42)', fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace' }}>
             {loading ? 'reading...' : `last read ${lastReadAt || '-'}`}
           </span>
@@ -150,17 +164,22 @@ export default function MonitorCard({
         </div>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
+      <div style={{ minWidth: 0 }}>
         <table
           style={{
             width: '100%',
-            minWidth: tableMinWidth,
+            tableLayout: 'fixed',
             borderCollapse: 'collapse',
             fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
             fontSize: 11,
             lineHeight: 1.2,
           }}
         >
+          <colgroup>
+            {columns.map((column) => (
+              <col key={column.key} style={{ width: getColumnWidth(column, columns) }} />
+            ))}
+          </colgroup>
           <thead>
             <tr>
               {columns.map((column) => (
@@ -171,9 +190,11 @@ export default function MonitorCard({
                     color: 'rgba(255,255,255,0.46)',
                     fontWeight: 700,
                     textAlign: 'left',
-                    padding: '6px 10px',
+                    padding: '6px 8px',
                     borderBottom: `1px solid ${BORDER_DEFAULT}`,
-                    whiteSpace: 'nowrap',
+                    whiteSpace: 'normal',
+                    wordBreak: 'break-word',
+                    overflowWrap: 'anywhere',
                   }}
                 >
                   {column.label}
@@ -197,9 +218,11 @@ export default function MonitorCard({
                         style={{
                           color: shouldColorStatus ? getStatusColor(cellValue) : 'rgba(255,255,255,0.78)',
                           fontWeight: shouldColorStatus ? 700 : 500,
-                          padding: '4px 10px',
+                          padding: '4px 8px',
                           borderBottom: `1px solid ${BORDER_SUBTLE}`,
-                          whiteSpace: 'nowrap',
+                          whiteSpace: 'normal',
+                          wordBreak: 'break-word',
+                          overflowWrap: 'anywhere',
                         }}
                       >
                         {cellValue}
@@ -217,9 +240,11 @@ export default function MonitorCard({
                     style={{
                       color: BLUE_PRIMARY,
                       fontWeight: 700,
-                      padding: '5px 10px 1px',
+                      padding: '5px 8px 1px',
                       borderTop: `1px solid ${BORDER_DEFAULT}`,
-                      whiteSpace: 'nowrap',
+                      whiteSpace: 'normal',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'anywhere',
                     }}
                   >
                     {formatCellValue(data.totals?.[column.key])}

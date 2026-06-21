@@ -49,7 +49,6 @@ export default function VpsMonitorCard({ active }: VpsMonitorCardProps) {
       fallbackColumns={fallbackColumns}
       fallbackTitle="Server Monitor"
       sortRows={sortRowsByMemoryDesc}
-      tableMinWidth={760}
     />
   );
 }

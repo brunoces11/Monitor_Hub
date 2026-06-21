@@ -37,12 +37,9 @@ export default function AgentHealthPanel({
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <PIcon name="brain" size="small" color="inherit" theme="dark" aria={{ 'aria-label': 'agents' }} style={{ color: BLUE_PRIMARY }} />
-          <PText size="medium" weight="semi-bold" theme="dark" color="primary">
-            {title}
-          </PText>
-        </div>
+        <PText size="medium" weight="semi-bold" theme="dark" color="primary">
+          {title}
+        </PText>
         <div className="flex items-center gap-2">
           <PText size="xx-small" theme="dark" color="contrast-medium">Completion Rate</PText>
           <span style={{ fontSize: 15, fontWeight: 700, color: BLUE_PRIMARY }}>{completionRate}</span>

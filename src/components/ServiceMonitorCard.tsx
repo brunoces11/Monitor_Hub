@@ -17,7 +17,6 @@ export default function ServiceMonitorCard({ active }: ServiceMonitorCardProps) 
       endpoint="/api/sync/service-monitor"
       fallbackColumns={fallbackColumns}
       fallbackTitle="API Monitor"
-      tableMinWidth={360}
     />
   );
 }

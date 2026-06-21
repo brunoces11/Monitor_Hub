@@ -24,6 +24,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
   const [sidebarTooltip, setSidebarTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
 
   const showSidebarTooltip = (label: string, target: HTMLElement) => {
+    if (!collapsed) return;
     const rect = target.getBoundingClientRect();
     setSidebarTooltip({
       label,
@@ -36,7 +37,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
     <aside
       className="flex flex-col h-full transition-all duration-300"
       style={{
-        width: collapsed ? 60 : 220,
+        width: collapsed ? 60 : 195,
         flexShrink: 0,
         background: '#0d0d12',
         borderRight: `1px solid ${BORDER_DEFAULT}`,
@@ -55,7 +56,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           borderTop: 'none',
           borderRight: 'none',
           cursor: 'pointer',
-          paddingLeft: collapsed ? 12 : 32,
+          paddingLeft: collapsed ? 12 : 18,
           paddingRight: 12,
         }}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -87,7 +88,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
               onClick={() => onActiveChange(item.id)}
               className="w-full flex items-center gap-3 rounded-lg mb-0.5 transition-all duration-150"
               style={{
-                padding: collapsed ? '9px 0' : '9px 10px',
+                padding: collapsed ? '9px 0' : '9px 8px',
                 justifyContent: collapsed ? 'center' : 'flex-start',
                 background: isActive ? SURFACE_RAISED : 'transparent',
                 border: isActive ? `1px solid ${BORDER_DEFAULT}` : '1px solid transparent',
@@ -127,85 +128,126 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
         })}
       </nav>
 
-      <div
-        className="mx-2 mb-3 flex gap-2"
-        style={{
-          alignItems: 'center',
-          flexDirection: collapsed ? 'column' : 'row',
-        }}
-      >
-        <button
-          className="relative flex items-center justify-center rounded-xl"
+      <div className="mx-2 mb-3 flex flex-col gap-2" style={{ alignItems: collapsed ? 'center' : 'stretch' }}>
+        <div
+          className="flex gap-2"
           style={{
-            width: 38,
-            height: 38,
-            background: SURFACE_RAISED,
-            border: `1px solid ${BORDER_DEFAULT}`,
-            cursor: 'pointer',
-            flexShrink: 0,
+            alignItems: 'center',
+            flexDirection: collapsed ? 'column' : 'row',
+            justifyContent: collapsed ? 'center' : 'flex-start',
           }}
-          onMouseEnter={(e) => {
-            showSidebarTooltip('Notifications', e.currentTarget);
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
-          }}
-          onMouseLeave={(e) => {
-            setSidebarTooltip(null);
-            (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
-          }}
-          onFocus={(e) => showSidebarTooltip('Notifications', e.currentTarget)}
-          onBlur={() => setSidebarTooltip(null)}
-          aria-label="Notifications"
         >
-          <PIcon name="bell" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'notifications' }} />
-          <span
-            className="absolute top-1.5 right-1.5 rounded-full flex items-center justify-center"
-            style={{ width: 12, height: 12, background: '#F87171', fontSize: 8, fontWeight: 700, color: '#fff' }}
+          <button
+            className="relative flex items-center rounded-xl min-w-0"
+            style={{
+              width: collapsed ? 38 : 'auto',
+              height: 38,
+              background: SURFACE_RAISED,
+              border: `1px solid ${BORDER_DEFAULT}`,
+              cursor: 'pointer',
+              flex: collapsed ? '0 0 auto' : 1,
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: 7,
+              padding: collapsed ? 0 : '6px 8px',
+            }}
+            onMouseEnter={(e) => {
+              showSidebarTooltip('Alerts', e.currentTarget);
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
+            }}
+            onMouseLeave={(e) => {
+              setSidebarTooltip(null);
+              (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
+            }}
+            onFocus={(e) => showSidebarTooltip('Alerts', e.currentTarget)}
+            onBlur={() => setSidebarTooltip(null)}
+            aria-label="Alerts"
           >
-            2
-          </span>
-        </button>
+            <span className="relative flex items-center justify-center flex-shrink-0" style={{ width: 18, height: 18 }}>
+              <PIcon name="bell" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'notifications' }} />
+              <span
+                className="absolute rounded-full flex items-center justify-center"
+                style={{
+                  width: 12,
+                  height: 12,
+                  top: -3,
+                  right: -3,
+                  background: '#F87171',
+                  fontSize: 8,
+                  fontWeight: 700,
+                  color: '#fff',
+                }}
+              >
+                2
+              </span>
+            </span>
+            {!collapsed && (
+              <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
+                Alerts
+              </PText>
+            )}
+          </button>
 
-        <button
-          className="relative flex items-center justify-center rounded-xl"
-          style={{
-            width: 38,
-            height: 38,
-            background: SURFACE_RAISED,
-            border: `1px solid ${BORDER_DEFAULT}`,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => {
-            showSidebarTooltip('Email notifications', e.currentTarget);
-            (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
-          }}
-          onMouseLeave={(e) => {
-            setSidebarTooltip(null);
-            (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
-          }}
-          onFocus={(e) => showSidebarTooltip('Email notifications', e.currentTarget)}
-          onBlur={() => setSidebarTooltip(null)}
-          aria-label="Email notifications"
-        >
-          <PIcon name="email" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'email notifications' }} />
-          <span
-            className="absolute top-1.5 right-1.5 rounded-full flex items-center justify-center"
-            style={{ width: 12, height: 12, background: '#F87171', fontSize: 8, fontWeight: 700, color: '#fff' }}
+          <button
+            className="relative flex items-center rounded-xl min-w-0"
+            style={{
+              width: collapsed ? 38 : 'auto',
+              height: 38,
+              background: SURFACE_RAISED,
+              border: `1px solid ${BORDER_DEFAULT}`,
+              cursor: 'pointer',
+              flex: collapsed ? '0 0 auto' : 1,
+              justifyContent: collapsed ? 'center' : 'flex-start',
+              gap: 7,
+              padding: collapsed ? 0 : '6px 8px',
+            }}
+            onMouseEnter={(e) => {
+              showSidebarTooltip('Emails', e.currentTarget);
+              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
+            }}
+            onMouseLeave={(e) => {
+              setSidebarTooltip(null);
+              (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
+            }}
+            onFocus={(e) => showSidebarTooltip('Emails', e.currentTarget)}
+            onBlur={() => setSidebarTooltip(null)}
+            aria-label="Emails"
           >
-            7
-          </span>
-        </button>
+            <span className="relative flex items-center justify-center flex-shrink-0" style={{ width: 18, height: 18 }}>
+              <PIcon name="email" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'email notifications' }} />
+              <span
+                className="absolute rounded-full flex items-center justify-center"
+                style={{
+                  width: 12,
+                  height: 12,
+                  top: -3,
+                  right: -3,
+                  background: '#F87171',
+                  fontSize: 8,
+                  fontWeight: 700,
+                  color: '#fff',
+                }}
+              >
+                7
+              </span>
+            </span>
+            {!collapsed && (
+              <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
+                Emails
+              </PText>
+            )}
+          </button>
+        </div>
 
         <button
           className="flex items-center gap-2 rounded-xl min-w-0"
           style={{
-            width: collapsed ? 38 : undefined,
+            width: collapsed ? 38 : '100%',
             height: 38,
             background: SURFACE_RAISED,
             border: `1px solid ${BORDER_DEFAULT}`,
             cursor: 'pointer',
             flex: collapsed ? '0 0 auto' : 1,
-            padding: '6px 8px',
+            padding: collapsed ? '6px 8px' : '6px',
             justifyContent: collapsed ? 'center' : 'flex-start',
           }}
           onMouseEnter={(e) => {

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { PIcon, PText } from '@porsche-design-system/components-react';
 import { BLUE_GRADIENT, BLUE_PRIMARY, BORDER_DEFAULT, SURFACE_RAISED } from '../theme';
 
@@ -21,17 +22,79 @@ const assistantMessages = [
   },
 ];
 
+const COLLAPSED_WIDTH = 60;
+const DEFAULT_EXPANDED_WIDTH = 228;
+const MIN_EXPANDED_WIDTH = 220;
+const MAX_EXPANDED_WIDTH = 520;
+
+function clampWidth(value: number) {
+  return Math.min(MAX_EXPANDED_WIDTH, Math.max(MIN_EXPANDED_WIDTH, value));
+}
+
 export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) {
+  const [expandedWidth, setExpandedWidth] = useState(DEFAULT_EXPANDED_WIDTH);
+  const [resizing, setResizing] = useState(false);
+
+  useEffect(() => {
+    if (!resizing) return;
+
+    const handleMouseMove = (event: MouseEvent) => {
+      setExpandedWidth(clampWidth(window.innerWidth - event.clientX));
+    };
+
+    const handleMouseUp = () => {
+      setResizing(false);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [resizing]);
+
   return (
     <aside
       className="flex flex-col h-full transition-all duration-300"
       style={{
-        width: expanded ? 286 : 60,
+        width: expanded ? expandedWidth : COLLAPSED_WIDTH,
         flexShrink: 0,
         background: '#0d0d12',
         borderLeft: `1px solid ${BORDER_DEFAULT}`,
+        position: 'relative',
+        transitionProperty: resizing ? 'none' : undefined,
       }}
     >
+      {expanded && (
+        <button
+          type="button"
+          aria-label="Resize AI chat sidebar"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            setResizing(true);
+          }}
+          style={{
+            position: 'absolute',
+            left: -4,
+            top: 0,
+            width: 8,
+            height: '100%',
+            border: 'none',
+            background: 'transparent',
+            cursor: 'col-resize',
+            zIndex: 5,
+          }}
+        />
+      )}
+
       <div
         className="flex items-center flex-shrink-0"
         style={{
@@ -42,12 +105,9 @@ export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) 
         }}
       >
         {expanded && (
-          <div>
+          <div className="min-w-0">
             <PText size="small" weight="semi-bold" theme="dark" color="primary">
               AI Chat
-            </PText>
-            <PText size="xx-small" theme="dark" color="contrast-medium" style={{ marginTop: 2 }}>
-              Operational assistant
             </PText>
           </div>
         )}
@@ -83,13 +143,13 @@ export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) 
                     className="rounded-xl"
                     style={{
                       alignSelf: isUser ? 'flex-end' : 'flex-start',
-                      maxWidth: '88%',
-                      padding: '9px 10px',
-                      background: isUser ? 'rgba(44,194,238,0.14)' : SURFACE_RAISED,
-                      border: `1px solid ${isUser ? 'rgba(44,194,238,0.24)' : BORDER_DEFAULT}`,
+                      maxWidth: isUser ? '88%' : '94%',
+                      padding: isUser ? '9px 10px' : '0 2px',
+                      background: isUser ? SURFACE_RAISED : 'transparent',
+                      border: isUser ? `1px solid ${BORDER_DEFAULT}` : '1px solid transparent',
                     }}
                   >
-                    <PText size="xx-small" theme="dark" color="primary" style={{ lineHeight: 1.35 }}>
+                    <PText size="xx-small" theme="dark" color="contrast-medium" style={{ lineHeight: 1.35 }}>
                       {message.text}
                     </PText>
                   </div>
@@ -116,7 +176,7 @@ export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) 
                   background: 'transparent',
                   border: 'none',
                   outline: 'none',
-                  color: '#f1f5f9',
+                  color: 'rgba(241, 245, 249, 0.72)',
                   fontSize: 12,
                 }}
               />
