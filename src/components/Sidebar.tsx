@@ -1,5 +1,5 @@
 import { PIcon, PText } from '@porsche-design-system/components-react';
-import { BLUE_PRIMARY, BLUE_GRADIENT, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT } from '../theme';
+import { BLUE_PRIMARY, BLUE_SECONDARY, BLUE_GRADIENT, SURFACE_RAISED, BORDER_DEFAULT } from '../theme';
 
 const navItems = [
   { id: 'overview', label: 'System Monitor', icon: 'grid' },
@@ -10,13 +10,6 @@ const navItems = [
   { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
   { id: 'workflows', label: 'Workflows', icon: 'arrows' },
   { id: 'agents', label: 'Agents', icon: 'brain' },
-];
-
-const systemStatus = [
-  { label: 'Active Users', value: '18' },
-  { label: 'Running Flows', value: '7' },
-  { label: 'Completed Today', value: '42' },
-  { label: 'Alerts', value: '2' },
 ];
 
 interface SidebarProps {
@@ -61,8 +54,8 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           <PIcon name="ai-spark-filled" size="x-small" color="inherit" theme="dark" aria={{ 'aria-label': 'Operational Hub' }} style={{ color: '#fff' }} />
         </div>
         {!collapsed && (
-          <span style={{ color: '#f1f5f9', fontSize: 20.8, fontWeight: 600, lineHeight: 1.1 }}>
-            Operational Hub
+          <span style={{ color: '#f1f5f9', fontSize: 25, fontWeight: 600, lineHeight: 1.1 }}>
+            HUB
           </span>
         )}
       </button>
@@ -114,27 +107,78 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
         })}
       </nav>
 
-      {/* System Status */}
-      {!collapsed && (
-        <div
-          className="mx-2 mb-3 rounded-xl p-3"
-          style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_SUBTLE}` }}
+      <div className="mx-2 mb-3 flex items-center gap-2">
+        <button
+          className="relative flex items-center justify-center rounded-xl"
+          style={{
+            width: 38,
+            height: 38,
+            background: SURFACE_RAISED,
+            border: `1px solid ${BORDER_DEFAULT}`,
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
+          aria-label="Notifications"
         >
-          <PText size="xx-small" theme="dark" color="contrast-medium" style={{ marginBottom: 10, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            System Status
-          </PText>
-          <div className="grid grid-cols-2 gap-2.5">
-            {systemStatus.map((s) => (
-              <div key={s.label} className="flex flex-col gap-0.5">
-                <PText size="xx-small" theme="dark" color="contrast-medium">{s.label}</PText>
-                <span style={{ color: BLUE_PRIMARY, fontWeight: 700, fontSize: 15, lineHeight: 1 }}>
-                  {s.value}
-                </span>
-              </div>
-            ))}
+          <PIcon name="bell" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'notifications' }} />
+          <span
+            className="absolute top-1.5 right-1.5 rounded-full flex items-center justify-center"
+            style={{ width: 12, height: 12, background: '#F87171', fontSize: 8, fontWeight: 700, color: '#fff' }}
+          >
+            2
+          </span>
+        </button>
+
+        <button
+          className="relative flex items-center justify-center rounded-xl"
+          style={{
+            width: 38,
+            height: 38,
+            background: SURFACE_RAISED,
+            border: `1px solid ${BORDER_DEFAULT}`,
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
+          aria-label="Email notifications"
+        >
+          <PIcon name="email" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'email notifications' }} />
+          <span
+            className="absolute top-1.5 right-1.5 rounded-full flex items-center justify-center"
+            style={{ width: 12, height: 12, background: '#F87171', fontSize: 8, fontWeight: 700, color: '#fff' }}
+          >
+            7
+          </span>
+        </button>
+
+        <button
+          className="flex items-center gap-2 rounded-xl min-w-0"
+          style={{
+            height: 38,
+            background: SURFACE_RAISED,
+            border: `1px solid ${BORDER_DEFAULT}`,
+            cursor: 'pointer',
+            flex: 1,
+            padding: '6px 8px',
+          }}
+          onMouseEnter={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)')}
+          onMouseLeave={(e) => ((e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT)}
+          aria-label="User menu"
+        >
+          <div
+            className="rounded-full flex items-center justify-center flex-shrink-0"
+            style={{ width: 26, height: 26, background: `linear-gradient(135deg, ${BLUE_PRIMARY}, ${BLUE_SECONDARY})`, fontSize: 10, fontWeight: 700, color: '#fff' }}
+          >
+            JO
           </div>
-        </div>
-      )}
+          <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
+            Joao
+          </PText>
+        </button>
+      </div>
 
       {collapsed && (
         <div className="flex flex-col items-center gap-2 pb-3 pt-2">

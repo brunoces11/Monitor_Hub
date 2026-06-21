@@ -8,7 +8,7 @@ export const kpiCards = [
 ];
 
 export const creativeGenerationData = {
-  requestedBy: 'João',
+  requestedBy: 'Joao',
   campaign: 'Summer Campaign X',
   creativesRequested: 5,
   style: 'Bold / Clean / Conversion-focused',
@@ -137,15 +137,6 @@ export const activityFeed: Array<{
   icon: string;
 }> = [
   {
-    id: 1,
-    user: 'João',
-    action: 'submitted a Creative Generation request',
-    target: 'Summer Campaign X',
-    time: '2 min ago',
-    status: 'info',
-    icon: 'ai-image',
-  },
-  {
     id: 2,
     user: 'System',
     action: 'Campaign X Instagram metrics updated',
@@ -153,15 +144,6 @@ export const activityFeed: Array<{
     time: '8 min ago',
     status: 'success',
     icon: 'chart',
-  },
-  {
-    id: 3,
-    user: 'Ana',
-    action: 'Video animation workflow moved to queued state',
-    target: 'Product Launch Reel',
-    time: '15 min ago',
-    status: 'warning',
-    icon: 'ai-video',
   },
   {
     id: 4,
@@ -192,17 +174,38 @@ export const activityFeed: Array<{
   },
 ];
 
+export const userActivityFeed = [
+  {
+    id: 1,
+    user: 'Joao',
+    action: 'submitted a Creative Generation request',
+    target: 'Summer Campaign X',
+    time: '2 min ago',
+    status: 'info' as const,
+    icon: 'ai-image',
+  },
+  {
+    id: 3,
+    user: 'Ana',
+    action: 'Video animation workflow moved to queued state',
+    target: 'Product Launch Reel',
+    time: '15 min ago',
+    status: 'warning' as const,
+    icon: 'ai-video',
+  },
+];
+
+export const serverActivityFeed = activityFeed;
+
 export const agentHealthData: {
   activeAgents: number;
   runningAutomations: number;
-  pendingTasks: number;
   errorCount: number;
   completionRate: string;
   agents: Array<{ name: string; status: 'active' | 'idle'; tasks: number }>;
 } = {
   activeAgents: 4,
   runningAutomations: 7,
-  pendingTasks: 13,
   errorCount: 2,
   completionRate: '95.4%',
   agents: [

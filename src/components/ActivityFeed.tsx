@@ -13,6 +13,7 @@ interface ActivityItem {
 
 interface ActivityFeedProps {
   items: ActivityItem[];
+  title?: string;
 }
 
 // All statuses use neutral grey except error (red) — color appears only in small dots
@@ -23,7 +24,7 @@ const statusStyles: Record<string, { dot: string; iconColor: string }> = {
   error: { dot: '#f87171', iconColor: '#f87171' },
 };
 
-export default function ActivityFeed({ items }: ActivityFeedProps) {
+export default function ActivityFeed({ items, title = 'Recent Activity' }: ActivityFeedProps) {
   return (
     <div
       className="rounded-2xl p-5 flex flex-col gap-4"
@@ -31,7 +32,7 @@ export default function ActivityFeed({ items }: ActivityFeedProps) {
     >
       <div className="flex items-center justify-between">
         <PText size="medium" weight="semi-bold" theme="dark" color="primary">
-          Recent Activity
+          {title}
         </PText>
         <div className="rounded-full px-2 py-0.5" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
           <span style={{ fontSize: 10, fontWeight: 600, color: BLUE_PRIMARY, letterSpacing: '0.06em' }}>LIVE</span>

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Sidebar from './components/Sidebar';
-import TopBar from './components/TopBar';
 import CreativeGenerationPanel from './components/CreativeGenerationPanel';
 import VideoAnimationsPanel from './components/VideoAnimationsPanel';
 import CampaignCard from './components/CampaignCard';
@@ -17,7 +16,8 @@ import {
   facebookCampaignData,
   workflowStatusData,
   channelRevenueData,
-  activityFeed,
+  userActivityFeed,
+  serverActivityFeed,
   agentHealthData,
 } from './mockData';
 import { BLUE_PRIMARY, BLUE_SECONDARY, BORDER_DEFAULT, SURFACE_CARD } from './theme';
@@ -47,8 +47,6 @@ export default function App() {
       />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <TopBar />
-
         <main className="flex-1 overflow-y-auto" style={{ padding: '28px 32px' }}>
           <div className="relative" style={{ zIndex: 1, maxWidth: 1400 }}>
             {activeSection === 'overview' && <OverviewPanel />}
@@ -75,12 +73,15 @@ function OverviewPanel() {
         </div>
       </div>
 
-      <div className="grid gap-5 items-start mb-8" style={{ gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)' }}>
+      <div className="grid gap-5 items-start mb-8" style={{ gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }}>
         <div style={{ minWidth: 0 }}>
-          <AgentHealthPanel {...agentHealthData} />
+          <ActivityFeed title="User Activity" items={userActivityFeed} />
         </div>
         <div style={{ minWidth: 0 }}>
-          <ActivityFeed items={activityFeed} />
+          <AgentHealthPanel title="Agent Activity" {...agentHealthData} />
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <ActivityFeed title="Server Activity" items={serverActivityFeed} />
         </div>
       </div>
 

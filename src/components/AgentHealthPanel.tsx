@@ -1,5 +1,5 @@
 import { PText, PIcon } from '@porsche-design-system/components-react';
-import { BLUE_PRIMARY, BLUE_SECONDARY, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT } from '../theme';
+import { BLUE_PRIMARY, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT } from '../theme';
 
 interface Agent {
   name: string;
@@ -8,18 +8,18 @@ interface Agent {
 }
 
 interface AgentHealthPanelProps {
+  title?: string;
   activeAgents: number;
   runningAutomations: number;
-  pendingTasks: number;
   errorCount: number;
   completionRate: string;
   agents: Agent[];
 }
 
 export default function AgentHealthPanel({
+  title = 'Agent & Workflow Health',
   activeAgents,
   runningAutomations,
-  pendingTasks,
   errorCount,
   completionRate,
   agents,
@@ -27,7 +27,6 @@ export default function AgentHealthPanel({
   const summary = [
     { label: 'Active Agents', value: String(activeAgents), color: BLUE_PRIMARY, icon: 'brain' },
     { label: 'Running', value: String(runningAutomations), color: BLUE_PRIMARY, icon: 'arrows' },
-    { label: 'Pending', value: String(pendingTasks), color: BLUE_SECONDARY, icon: 'clock' },
     { label: 'Errors', value: String(errorCount), color: '#f87171', icon: 'error-filled' },
   ];
 
@@ -41,7 +40,7 @@ export default function AgentHealthPanel({
         <div className="flex items-center gap-2">
           <PIcon name="brain" size="small" color="inherit" theme="dark" aria={{ 'aria-label': 'agents' }} style={{ color: BLUE_PRIMARY }} />
           <PText size="medium" weight="semi-bold" theme="dark" color="primary">
-            Agent &amp; Workflow Health
+            {title}
           </PText>
         </div>
         <div className="flex items-center gap-2">
@@ -51,7 +50,7 @@ export default function AgentHealthPanel({
       </div>
 
       {/* Summary grid */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {summary.map(({ label, value, color, icon }) => (
           <div
             key={label}
