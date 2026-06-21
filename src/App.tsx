@@ -51,9 +51,9 @@ export default function App() {
 
         <main className="flex-1 overflow-y-auto" style={{ padding: '28px 32px' }}>
           <div className="relative" style={{ zIndex: 1, maxWidth: 1400 }}>
-            {activeSection === 'overview' ? (
-              <OverviewPanel />
-            ) : (
+            {activeSection === 'overview' && <OverviewPanel />}
+            {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>
@@ -75,8 +75,13 @@ function OverviewPanel() {
         </div>
       </div>
 
-      <div className="mb-8">
-        <AgentHealthPanel {...agentHealthData} />
+      <div className="grid gap-5 items-start mb-8" style={{ gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1fr)' }}>
+        <div style={{ minWidth: 0 }}>
+          <AgentHealthPanel {...agentHealthData} />
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <ActivityFeed items={activityFeed} />
+        </div>
       </div>
 
       <SectionLabel label="Active Workflows" />
@@ -86,48 +91,51 @@ function OverviewPanel() {
       </div>
 
       <div className="mt-8">
-        <SectionLabel label="Campaign X - Platform Performance" />
-        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))' }}>
-          <CampaignCard
-            platform="instagram"
-            title="Campaign X - Instagram"
-            reach={instagramCampaignData.reach}
-            newLeads24h={instagramCampaignData.newLeads24h}
-            leadConvRate={instagramCampaignData.leadConvRate}
-            salesConvRate={instagramCampaignData.salesConvRate}
-            productSales={instagramCampaignData.productSales}
-            trend={instagramCampaignData.trend}
-            trendUp={instagramCampaignData.trendUp}
-            status={instagramCampaignData.status}
-            chartData={instagramCampaignData.chartData}
-            funnelData={instagramCampaignData.funnelData}
-          />
-          <CampaignCard
-            platform="facebook"
-            title="Campaign X - Facebook Ads"
-            reach={facebookCampaignData.reach}
-            newLeads24h={facebookCampaignData.newLeads24h}
-            leadConvRate={facebookCampaignData.leadConvRate}
-            salesConvRate={facebookCampaignData.salesConvRate}
-            productSales={facebookCampaignData.productSales}
-            trend={facebookCampaignData.trend}
-            trendUp={facebookCampaignData.trendUp}
-            status={facebookCampaignData.status}
-            chartData={facebookCampaignData.chartData}
-            funnelData={facebookCampaignData.funnelData}
-          />
-        </div>
-      </div>
-
-      <div className="mt-8">
         <SectionLabel label="Analytics & Operations" />
         <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))' }}>
           <WorkflowStatusChart data={workflowStatusData} />
           <ChannelRevenueChart data={channelRevenueData} />
-          <ActivityFeed items={activityFeed} />
         </div>
       </div>
 
+    </>
+  );
+}
+
+function CampaignMonitorPanel() {
+  return (
+    <>
+      <SectionLabel label="Campaign X - Platform Performance" />
+      <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+        <CampaignCard
+          platform="instagram"
+          title="Campaign X - Instagram"
+          reach={instagramCampaignData.reach}
+          newLeads24h={instagramCampaignData.newLeads24h}
+          leadConvRate={instagramCampaignData.leadConvRate}
+          salesConvRate={instagramCampaignData.salesConvRate}
+          productSales={instagramCampaignData.productSales}
+          trend={instagramCampaignData.trend}
+          trendUp={instagramCampaignData.trendUp}
+          status={instagramCampaignData.status}
+          chartData={instagramCampaignData.chartData}
+          funnelData={instagramCampaignData.funnelData}
+        />
+        <CampaignCard
+          platform="facebook"
+          title="Campaign X - Facebook Ads"
+          reach={facebookCampaignData.reach}
+          newLeads24h={facebookCampaignData.newLeads24h}
+          leadConvRate={facebookCampaignData.leadConvRate}
+          salesConvRate={facebookCampaignData.salesConvRate}
+          productSales={facebookCampaignData.productSales}
+          trend={facebookCampaignData.trend}
+          trendUp={facebookCampaignData.trendUp}
+          status={facebookCampaignData.status}
+          chartData={facebookCampaignData.chartData}
+          funnelData={facebookCampaignData.funnelData}
+        />
+      </div>
     </>
   );
 }
