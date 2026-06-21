@@ -7,7 +7,7 @@ export type MonitorColumn = {
   label: string;
 };
 
-type MonitorRow = Record<string, string | number | null | undefined>;
+export type MonitorRow = Record<string, string | number | null | undefined>;
 
 type MonitorData = {
   title?: string;
@@ -24,6 +24,7 @@ interface MonitorCardProps {
   endpoint: string;
   fallbackColumns: MonitorColumn[];
   fallbackTitle: string;
+  sortRows?: (rows: MonitorRow[]) => MonitorRow[];
   tableMinWidth?: number;
 }
 
@@ -53,6 +54,7 @@ export default function MonitorCard({
   endpoint,
   fallbackColumns,
   fallbackTitle,
+  sortRows,
   tableMinWidth = 760,
 }: MonitorCardProps) {
   const [data, setData] = useState<MonitorData | null>(null);
@@ -113,7 +115,8 @@ export default function MonitorCard({
   }, [active, endpoint]);
 
   const columns = data?.columns?.length ? data.columns : fallbackColumns;
-  const services = data?.services ?? data?.containers ?? [];
+  const rows = data?.services ?? data?.containers ?? [];
+  const services = sortRows ? sortRows(rows) : rows;
   const title = data?.title || fallbackTitle;
 
   return (

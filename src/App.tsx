@@ -23,7 +23,7 @@ import {
 import { BLUE_PRIMARY, BLUE_SECONDARY, BORDER_DEFAULT, SURFACE_CARD } from './theme';
 
 const sectionLabels: Record<string, string> = {
-  overview: 'Overview',
+  overview: 'System Monitor',
   'creative-studio': 'Video Publisher',
   'thumbnail-creator': 'Thumbnail Creator',
   'video-animations': 'Video Creator',

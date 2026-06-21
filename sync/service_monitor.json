@@ -19,32 +19,62 @@
   ],
   "services": [
     {
-      "service_name": "Meta ADs API",
-      "stats": "online",
+      "service_name": "API - Meta ADs",
+      "stats": "Online",
       "last_check": "14:05:11"
     },
     {
-      "service_name": "Google ADs API",
-      "stats": "online",
+      "service_name": "API - Google ADs",
+      "stats": "Online",
       "last_check": "14:05:18"
     },
     {
-      "service_name": "N8N API",
+      "service_name": "API - Gmail",
+      "stats": "Online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "API - GDrive",
+      "stats": "Online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "API - Google meet",
+      "stats": "Online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "API - Zoom",
+      "stats": "Online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "API - Slack",
+      "stats": "Online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "API - Trello",
+      "stats": "Online",
+      "last_check": "14:05:18"
+    },
+    {
+      "service_name": "API - N8N",
       "stats": "degraded",
       "last_check": "14:04:52"
     },
     {
-      "service_name": "Openclaw API",
-      "stats": "online",
+      "service_name": "API - OpenCLaw",
+      "stats": "Online",
       "last_check": "14:05:03"
     },
     {
-      "service_name": "OpenAI API",
-      "stats": "online",
+      "service_name": "API - OpenAi",
+      "stats": "Online",
       "last_check": "14:05:24"
     },
     {
-      "service_name": "Hud Monitor API",
+      "service_name": "API - Hud Monitor",
       "stats": "offline",
       "last_check": "14:03:47"
     }

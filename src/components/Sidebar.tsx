@@ -2,11 +2,11 @@ import { PIcon, PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BLUE_GRADIENT, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT } from '../theme';
 
 const navItems = [
-  { id: 'overview', label: 'Overview', icon: 'grid' },
+  { id: 'overview', label: 'System Monitor', icon: 'grid' },
+  { id: 'campaign-monitor', label: 'Campaign Monitor', icon: 'chart' },
   { id: 'creative-studio', label: 'Video Publisher', icon: 'upload' },
   { id: 'thumbnail-creator', label: 'Thumbnail Creator', icon: 'ai-image' },
   { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
-  { id: 'campaign-monitor', label: 'Campaign Monitor', icon: 'chart' },
   { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
   { id: 'workflows', label: 'Workflows', icon: 'arrows' },
   { id: 'agents', label: 'Agents', icon: 'brain' },
