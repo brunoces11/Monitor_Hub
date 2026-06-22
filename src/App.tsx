@@ -14,6 +14,7 @@ import ServiceMonitorCard from './components/ServiceMonitorCard';
 import VideoPublisherTable from './components/VideoPublisherTable';
 import AgentsPanel from './components/AgentsPanel';
 import TranscriptionCard from './components/TranscriptionCard';
+import KnowledgeGraphPanel from './components/KnowledgeGraphPanel';
 import {
   creativeGenerationData,
   videoAnimationsData,
@@ -39,6 +40,7 @@ const sectionLabels: Record<string, string> = {
   workflows: 'Workflows',
   agents: 'Agents',
   transcriptor: 'Transcriptor',
+  'knowledge-graph': 'Knowledge Graph',
 };
 
 export default function App() {
@@ -46,7 +48,7 @@ export default function App() {
   const [rightChatExpanded, setRightChatExpanded] = useState(false);
   const [activeChatAgent, setActiveChatAgent] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState('overview');
-  const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' ? '24px 24px 24px' : '20px 8px 8px';
+  const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' || activeSection === 'knowledge-graph' ? '24px 24px 24px' : '20px 8px 8px';
 
   const handleRightChatToggle = () => {
     setRightChatExpanded((current) => {
@@ -81,7 +83,8 @@ export default function App() {
             {activeSection === 'creative-studio' && <VideoPublisherPanel />}
             {activeSection === 'agents' && <AgentsPanel onOpenAgentChat={handleOpenAgentChat} />}
             {activeSection === 'transcriptor' && <TranscriptorPanel />}
-            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && (
+            {activeSection === 'knowledge-graph' && <KnowledgeGraphPanel />}
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && activeSection !== 'knowledge-graph' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>

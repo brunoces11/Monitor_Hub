@@ -9,6 +9,7 @@ const navItems = [
   { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
   { id: 'agents', label: 'Agents', icon: 'robot' },
   { id: 'transcriptor', label: 'Transcriptor', icon: 'org-chart' },
+  { id: 'knowledge-graph', label: 'Knowledge Graph', icon: 'knowledge-graph' },
   // Hidden for now per current navigation scope:
   // { id: 'thumbnail-creator', label: 'Thumbnail Creator', icon: 'ai-image' },
   // { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
@@ -148,6 +149,29 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                     <rect x="3.5" y="15.2" width="5" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
                     <rect x="9.5" y="15.2" width="5" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
                     <rect x="15.5" y="15.2" width="5" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
+                  </svg>
+                </span>
+              ) : item.icon === 'knowledge-graph' ? (
+                <span
+                  aria-label={item.label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 23,
+                    height: 23,
+                    flexShrink: 0,
+                    opacity: isActive ? 1 : 0.82,
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false">
+                    <path d="M7.4 8.2 12 5.2l4.6 3M7.4 15.8 12 18.8l4.6-3M7.5 8.5v7M16.5 8.5v7M8 8.2h8M8 15.8h8" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="12" cy="5" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
+                    <circle cx="6.5" cy="8.8" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
+                    <circle cx="17.5" cy="8.8" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
+                    <circle cx="6.5" cy="15.2" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
+                    <circle cx="17.5" cy="15.2" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
+                    <circle cx="12" cy="19" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
                   </svg>
                 </span>
               ) : (

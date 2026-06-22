@@ -133,3 +133,47 @@ html, body, #root {
     transform: rotate(360deg);
   }
 }
+
+.knowledge-graph-flow .react-flow__node {
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.knowledge-graph-flow .react-flow__node:hover {
+  transform: translateY(-1px);
+}
+
+.knowledge-graph-flow .react-flow__attribution {
+  display: none;
+}
+
+.knowledge-graph-flow .react-flow__controls {
+  background: #15151b;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.knowledge-graph-flow .react-flow__controls-button {
+  width: 28px;
+  height: 28px;
+  background: #15151b;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.knowledge-graph-flow .react-flow__controls-button:hover {
+  background: #222230;
+}
+
+.knowledge-graph-flow .react-flow__controls-button svg {
+  fill: rgba(255, 255, 255, 0.74);
+}
+
+.knowledge-graph-flow .react-flow__edge-textbg {
+  fill: #101016;
+}
+
+.knowledge-graph-flow .react-flow__minimap {
+  overflow: hidden;
+}
