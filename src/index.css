@@ -146,6 +146,10 @@ html, body, #root {
   cursor: grabbing;
 }
 
+.knowledge-graph-flow .react-flow__edge path {
+  transition: stroke 180ms ease, stroke-width 180ms ease, opacity 180ms ease;
+}
+
 .knowledge-graph-flow .react-flow__edge.animated path {
   stroke-dasharray: 5;
 }

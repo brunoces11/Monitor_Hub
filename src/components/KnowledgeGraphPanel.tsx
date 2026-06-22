@@ -2,7 +2,6 @@ import { useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
-  MarkerType,
   MiniMap,
   type Edge,
   type Node,
@@ -168,7 +167,7 @@ const graphMeta: GraphMeta[] = [
   },
   {
     id: 'meeting-growth',
-    label: meetingTranscriptions[0].title,
+    label: 'Growth Sync',
     kind: 'record',
     category: 'Meeting transcript',
     source: 'Transcriptor card',
@@ -229,24 +228,24 @@ const graphMeta: GraphMeta[] = [
 ];
 
 const nodePositions: Record<string, { x: number; y: number }> = {
-  hub: { x: 420, y: 260 },
-  campaigns: { x: 160, y: 60 },
-  agents: { x: 420, y: 40 },
-  transcriptions: { x: 690, y: 90 },
-  content: { x: 120, y: 420 },
-  emails: { x: 420, y: 500 },
-  clients: { x: 710, y: 420 },
-  products: { x: 900, y: 260 },
-  'google-ads': { x: -20, y: 110 },
-  'campaign-x': { x: -10, y: 260 },
-  'transcriptor-agent': { x: 620, y: -10 },
-  'creative-agent': { x: 230, y: -10 },
-  'meeting-growth': { x: 860, y: 20 },
-  tasks: { x: 900, y: 160 },
-  'video-publisher': { x: -40, y: 560 },
-  'creative-request': { x: 180, y: 610 },
-  'client-x': { x: 920, y: 540 },
-  'product-xyz': { x: 1100, y: 380 },
+  hub: { x: 520, y: 315 },
+  campaigns: { x: 520, y: 95 },
+  agents: { x: 730, y: 175 },
+  transcriptions: { x: 790, y: 345 },
+  content: { x: 650, y: 535 },
+  emails: { x: 390, y: 535 },
+  clients: { x: 250, y: 345 },
+  products: { x: 310, y: 175 },
+  'google-ads': { x: 395, y: 10 },
+  'campaign-x': { x: 645, y: 10 },
+  'transcriptor-agent': { x: 895, y: 205 },
+  'creative-agent': { x: 830, y: 55 },
+  'meeting-growth': { x: 980, y: 345 },
+  tasks: { x: 890, y: 500 },
+  'video-publisher': { x: 760, y: 675 },
+  'creative-request': { x: 545, y: 690 },
+  'client-x': { x: 70, y: 365 },
+  'product-xyz': { x: 130, y: 115 },
 };
 
 const relationshipEdges: Edge[] = [
@@ -280,14 +279,9 @@ function makeEdge(source: string, target: string, label: string): Edge {
     id: `${source}-${target}`,
     source,
     target,
-    label,
-    type: 'smoothstep',
-    markerEnd: { type: MarkerType.ArrowClosed, color: 'rgba(255,255,255,0.2)' },
-    style: { stroke: 'rgba(255,255,255,0.18)', strokeWidth: 1.5 },
-    labelStyle: { fill: 'rgba(255,255,255,0.42)', fontSize: 9, fontWeight: 700 },
-    labelBgStyle: { fill: '#14141A', fillOpacity: 0.82 },
-    labelBgPadding: [5, 3],
-    labelBgBorderRadius: 4,
+    type: 'default',
+    data: { relation: label },
+    style: { stroke: 'rgba(255,255,255,0.16)', strokeWidth: 1.35 },
   };
 }
 
@@ -328,23 +322,11 @@ export default function KnowledgeGraphPanel() {
 
     return {
       ...edge,
-      animated: isConnectedToSelected,
+      animated: false,
       style: {
-        stroke: isConnectedToSelected ? `${selectedAccent}cc` : 'rgba(255,255,255,0.14)',
-        strokeWidth: isConnectedToSelected ? 2.3 : 1.3,
-      },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        color: isConnectedToSelected ? `${selectedAccent}cc` : 'rgba(255,255,255,0.18)',
-      },
-      labelStyle: {
-        fill: isConnectedToSelected ? 'rgba(255,255,255,0.68)' : 'rgba(255,255,255,0.34)',
-        fontSize: 9,
-        fontWeight: 700,
-      },
-      labelBgStyle: {
-        fill: '#14141A',
-        fillOpacity: isConnectedToSelected ? 0.92 : 0.72,
+        stroke: isConnectedToSelected ? `${selectedAccent}d9` : 'rgba(255,255,255,0.13)',
+        strokeWidth: isConnectedToSelected ? 2.15 : 1.25,
+        opacity: isConnectedToSelected ? 1 : 0.58,
       },
     };
   });
@@ -402,6 +384,7 @@ export default function KnowledgeGraphPanel() {
             edges={graphEdges}
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
             onNodeDragStop={handleNodeDragStop}
+            nodeOrigin={[0.5, 0.5]}
             fitView
             fitViewOptions={{ padding: 0.2 }}
             minZoom={0.35}
@@ -493,7 +476,7 @@ export default function KnowledgeGraphPanel() {
                       {related?.label || relatedId}
                     </div>
                     <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 10, marginTop: 3 }}>
-                      {String(edge.label || 'related')}
+                      {String(edge.data?.relation || 'related')}
                     </div>
                   </button>
                 );
