@@ -13,10 +13,12 @@ import VpsMonitorCard from './components/VpsMonitorCard';
 import ServiceMonitorCard from './components/ServiceMonitorCard';
 import VideoPublisherTable from './components/VideoPublisherTable';
 import AgentsPanel from './components/AgentsPanel';
+import TranscriptionCard from './components/TranscriptionCard';
 import {
   creativeGenerationData,
   videoAnimationsData,
   googleAdsCampaigns,
+  meetingTranscriptions,
   instagramCampaignData,
   facebookCampaignData,
   workflowStatusData,
@@ -185,23 +187,14 @@ function VideoPublisherPanel() {
 
 function TranscriptorPanel() {
   return (
-    <div className="rounded-2xl p-6" style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}>
+    <>
       <SectionLabel label="Transcriptor" />
-      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
-        <div className="rounded-2xl p-4" style={{ background: '#15151b', border: `1px solid ${BORDER_DEFAULT}` }}>
-          <h3 style={{ margin: 0, color: '#f1f5f9', fontSize: 18, fontWeight: 600 }}>Meeting transcript intelligence</h3>
-          <p style={{ margin: '10px 0 0', color: 'rgba(255,255,255,0.66)', fontSize: 13, lineHeight: 1.5 }}>
-            This session is dedicated to extracting decisions, owners, deadlines, and follow-up items from meeting transcripts.
-          </p>
-        </div>
-        <div className="rounded-2xl p-4" style={{ background: '#15151b', border: `1px solid ${BORDER_DEFAULT}` }}>
-          <h3 style={{ margin: 0, color: '#f1f5f9', fontSize: 18, fontWeight: 600 }}>Action item tracking</h3>
-          <p style={{ margin: '10px 0 0', color: 'rgba(255,255,255,0.66)', fontSize: 13, lineHeight: 1.5 }}>
-            It helps surface who needs to do what after each meeting so nothing gets lost in the handoff.
-          </p>
-        </div>
+      <div className="flex flex-col gap-5">
+        {meetingTranscriptions.map((meeting) => (
+          <TranscriptionCard key={meeting.id} meeting={meeting} />
+        ))}
       </div>
-    </div>
+    </>
   );
 }
 

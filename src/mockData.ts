@@ -154,6 +154,33 @@ export const googleAdsCampaigns = [
   },
 ];
 
+export const meetingTranscriptions = [
+  {
+    id: 'mtg-growth-2026-06-27',
+    day: '27',
+    month: 'JUN',
+    title: 'Growth sync: Q3 launch readiness, campaign handoff, and CRM follow-up priorities',
+    participants: [
+      { name: 'Joana', avatar: '/avatars/joana_48.jpg' },
+      { name: 'Ana', initials: 'AN', color: '#7C3AED' },
+      { name: 'Marina', initials: 'MA', color: '#0EA5E9' },
+      { name: 'Carlos', initials: 'CA', color: '#16A34A' },
+    ],
+    keyPoints: [
+      'Campaign launch depends on final landing page QA and updated conversion events.',
+      'CRM import needs duplicate cleanup before the next outbound sequence is triggered.',
+      'Creative review approved the first two video angles and requested shorter CTAs.',
+      'Reporting cadence will move to twice per week until the Q3 launch stabilizes.',
+    ],
+    tasks: [
+      { task: 'Validate final landing page tracking events', owner: 'Ana' },
+      { task: 'Clean CRM duplicate leads before import', owner: 'Marina' },
+      { task: 'Rewrite CTA variants for approved video angles', owner: 'Joana' },
+      { task: 'Prepare Q3 launch status report template', owner: 'Carlos' },
+    ],
+  },
+];
+
 export const workflowStatusData = [
   { name: 'Running', value: 7, color: '#22d3ee' },
   { name: 'Queued', value: 5, color: '#6366f1' },

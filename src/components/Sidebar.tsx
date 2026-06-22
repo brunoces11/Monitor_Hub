@@ -6,12 +6,13 @@ const navItems = [
   { id: 'overview', label: 'System Monitor', icon: 'grid' },
   { id: 'campaign-monitor', label: 'Campaign Monitor', icon: 'chart' },
   { id: 'creative-studio', label: 'Video Publisher', icon: 'upload' },
-  { id: 'thumbnail-creator', label: 'Thumbnail Creator', icon: 'ai-image' },
-  { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
   { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
-  { id: 'workflows', label: 'Workflows', icon: 'arrows' },
-  { id: 'agents', label: 'Agents', icon: 'brain' },
-  { id: 'transcriptor', label: 'Transcriptor', icon: 'document' },
+  { id: 'agents', label: 'Agents', icon: 'robot' },
+  { id: 'transcriptor', label: 'Transcriptor', icon: 'org-chart' },
+  // Hidden for now per current navigation scope:
+  // { id: 'thumbnail-creator', label: 'Thumbnail Creator', icon: 'ai-image' },
+  // { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
+  // { id: 'workflows', label: 'Workflows', icon: 'arrows' },
 ];
 
 interface SidebarProps {
@@ -106,14 +107,59 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
               onFocus={(e) => showSidebarTooltip(item.label, e.currentTarget)}
               onBlur={() => setSidebarTooltip(null)}
             >
-              <PIcon
-                name={item.icon as never}
-                size="small"
-                color="contrast-high"
-                theme="dark"
-                aria={{ 'aria-label': item.label }}
-                style={{ flexShrink: 0, opacity: isActive ? 1 : 0.82 }}
-              />
+              {item.icon === 'robot' ? (
+                <span
+                  aria-label={item.label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 25,
+                    height: 25,
+                    flexShrink: 0,
+                    opacity: isActive ? 1 : 0.82,
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" focusable="false">
+                    <rect x="6.25" y="5" width="11.5" height="12" rx="4.4" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
+                    <circle cx="9.6" cy="10.5" r="1" fill="rgba(255,255,255,0.88)" />
+                    <circle cx="14.4" cy="10.5" r="1" fill="rgba(255,255,255,0.88)" />
+                    <path d="M9.2 13.2c.9.75 1.9 1.1 2.8 1.1s1.9-.35 2.8-1.1" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinecap="round" />
+                    <path d="M12 3.2v2.3" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinecap="round" />
+                    <circle cx="12" cy="2.3" r="1" fill="rgba(255,255,255,0.88)" />
+                  </svg>
+                </span>
+              ) : item.icon === 'org-chart' ? (
+                <span
+                  aria-label={item.label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 23,
+                    height: 23,
+                    flexShrink: 0,
+                    opacity: isActive ? 1 : 0.82,
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false">
+                    <rect x="9" y="3.5" width="6" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
+                    <path d="M12 7.7v3.1M6.5 15.2v-1.9h11v1.9" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="3.5" y="15.2" width="5" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
+                    <rect x="9.5" y="15.2" width="5" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
+                    <rect x="15.5" y="15.2" width="5" height="4.2" rx="1.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
+                  </svg>
+                </span>
+              ) : (
+                <PIcon
+                  name={item.icon as never}
+                  size="small"
+                  color="contrast-high"
+                  theme="dark"
+                  aria={{ 'aria-label': item.label }}
+                  style={{ flexShrink: 0, opacity: isActive ? 1 : 0.82 }}
+                />
+              )}
               {!collapsed && (
                 <PText
                   size="x-small"
