@@ -5,6 +5,7 @@ import { BLUE_GRADIENT, BLUE_PRIMARY, BORDER_DEFAULT, SURFACE_RAISED } from '../
 interface RightSidebarProps {
   expanded: boolean;
   onToggle: () => void;
+  activeAgentName?: string | null;
 }
 
 const assistantMessages = [
@@ -31,7 +32,7 @@ function clampWidth(value: number) {
   return Math.min(MAX_EXPANDED_WIDTH, Math.max(MIN_EXPANDED_WIDTH, value));
 }
 
-export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) {
+export default function RightSidebar({ expanded, onToggle, activeAgentName }: RightSidebarProps) {
   const [expandedWidth, setExpandedWidth] = useState(DEFAULT_EXPANDED_WIDTH);
   const [resizing, setResizing] = useState(false);
 
@@ -215,9 +216,22 @@ export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) 
                 padding: '7px 8px',
               }}
             >
+              <button
+                className="flex items-center justify-center rounded-lg flex-shrink-0"
+                style={{
+                  width: 28,
+                  height: 28,
+                  background: 'transparent',
+                  border: 'none',
+                  cursor: 'pointer',
+                }}
+                aria-label="Attach files"
+              >
+                <PIcon name="attachment" size="x-small" color="contrast-medium" theme="dark" aria={{ 'aria-label': 'attach files' }} />
+              </button>
               <input
                 aria-label="AI chat message"
-                placeholder="Ask the HUB..."
+                placeholder={activeAgentName ? `Message ${activeAgentName}...` : 'Ask the HUB...'}
                 style={{
                   flex: 1,
                   minWidth: 0,
@@ -228,6 +242,22 @@ export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) 
                   fontSize: 12,
                 }}
               />
+              {activeAgentName && (
+                <span
+                  className="rounded-full flex items-center"
+                  style={{
+                    padding: '4px 8px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: `1px solid ${BORDER_DEFAULT}`,
+                    color: 'rgba(241,245,249,0.72)',
+                    fontSize: 10,
+                    fontWeight: 700,
+                    flexShrink: 0,
+                  }}
+                >
+                  {activeAgentName}
+                </span>
+              )}
               <button
                 className="hub-tooltip flex items-center justify-center rounded-lg"
                 data-tooltip="Send message"

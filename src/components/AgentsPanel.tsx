@@ -80,7 +80,11 @@ const emptyAgentDraft: AgentDraft = {
   tools: [],
 };
 
-export default function AgentsPanel() {
+interface AgentsPanelProps {
+  onOpenAgentChat?: (agentName: string) => void;
+}
+
+export default function AgentsPanel({ onOpenAgentChat }: AgentsPanelProps) {
   const [agents, setAgents] = useState(initialAgents);
   const [editingAgent, setEditingAgent] = useState<AgentConfig | null>(null);
   const [creatingAgentType, setCreatingAgentType] = useState<AgentType | null>(null);
@@ -213,7 +217,13 @@ export default function AgentsPanel() {
 
       <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
         {systemAgents.map((agent) => (
-          <AgentCard key={agent.name} agent={agent} onToggle={() => toggleAgent(agent.name)} onEdit={() => openEditor(agent)} />
+          <AgentCard
+            key={agent.name}
+            agent={agent}
+            onToggle={() => toggleAgent(agent.name)}
+            onEdit={() => openEditor(agent)}
+            onChat={() => onOpenAgentChat?.(agent.name)}
+          />
         ))}
       </div>
 
@@ -236,7 +246,13 @@ export default function AgentsPanel() {
 
       <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))' }}>
         {clientAgents.map((agent) => (
-          <AgentCard key={agent.name} agent={agent} onToggle={() => toggleAgent(agent.name)} onEdit={() => openEditor(agent)} />
+          <AgentCard
+            key={agent.name}
+            agent={agent}
+            onToggle={() => toggleAgent(agent.name)}
+            onEdit={() => openEditor(agent)}
+            onChat={() => onOpenAgentChat?.(agent.name)}
+          />
         ))}
       </div>
 
@@ -527,7 +543,17 @@ export default function AgentsPanel() {
   );
 }
 
-function AgentCard({ agent, onToggle, onEdit }: { agent: AgentConfig; onToggle: () => void; onEdit: () => void }) {
+function AgentCard({
+  agent,
+  onToggle,
+  onEdit,
+  onChat,
+}: {
+  agent: AgentConfig;
+  onToggle: () => void;
+  onEdit: () => void;
+  onChat: () => void;
+}) {
   return (
     <section
       className="rounded-2xl p-4"
@@ -618,6 +644,7 @@ function AgentCard({ agent, onToggle, onEdit }: { agent: AgentConfig; onToggle: 
           </button>
           <button
             className="rounded-lg px-2.5 py-1.5 flex items-center gap-2"
+            onClick={onChat}
             style={{ background: BLUE_PRIMARY, border: '1px solid transparent', color: '#061017', cursor: 'pointer', flexShrink: 0, fontSize: 12, fontWeight: 700 }}
             aria-label={`Open chat with ${agent.name}`}
           >

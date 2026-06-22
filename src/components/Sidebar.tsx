@@ -10,7 +10,7 @@ const navItems = [
   { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
   { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
   { id: 'workflows', label: 'Workflows', icon: 'arrows' },
-  { id: 'agents', label: 'Agents', icon: 'brain' },
+  { id: 'agents', label: 'Agent Manager', icon: 'brain' },
 ];
 
 interface SidebarProps {

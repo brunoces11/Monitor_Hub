@@ -39,6 +39,7 @@ const sectionLabels: Record<string, string> = {
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rightChatExpanded, setRightChatExpanded] = useState(false);
+  const [activeChatAgent, setActiveChatAgent] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState('overview');
   const mainPadding = activeSection === 'agents' ? '24px 24px 24px' : '20px 8px 8px';
 
@@ -50,6 +51,12 @@ export default function App() {
       }
       return next;
     });
+  };
+
+  const handleOpenAgentChat = (agentName: string) => {
+    setActiveChatAgent(agentName);
+    setRightChatExpanded(true);
+    setSidebarCollapsed(true);
   };
 
   return (
@@ -67,7 +74,7 @@ export default function App() {
             {activeSection === 'overview' && <OverviewPanel />}
             {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
             {activeSection === 'creative-studio' && <VideoPublisherPanel />}
-            {activeSection === 'agents' && <AgentsPanel />}
+            {activeSection === 'agents' && <AgentsPanel onOpenAgentChat={handleOpenAgentChat} />}
             {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
@@ -75,7 +82,7 @@ export default function App() {
         </main>
       </div>
 
-      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} />
+      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} activeAgentName={activeChatAgent} />
     </div>
   );
 }
