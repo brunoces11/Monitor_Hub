@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import ReactFlow, { Background, Controls, MarkerType, MiniMap, type Edge, type Node } from 'reactflow';
+import ReactFlow, {
+  Background,
+  Controls,
+  MarkerType,
+  MiniMap,
+  type Edge,
+  type Node,
+  type NodeDragHandler,
+} from 'reactflow';
 import 'reactflow/dist/style.css';
 import {
   agentHealthData,
@@ -284,33 +292,76 @@ function makeEdge(source: string, target: string, label: string): Edge {
 }
 
 function getNodeStyle(meta: GraphMeta, isSelected: boolean): React.CSSProperties {
+  const size = meta.kind === 'core' ? 136 : meta.kind === 'domain' ? 118 : 104;
+
   return {
-    width: meta.kind === 'core' ? 184 : meta.kind === 'domain' ? 150 : 166,
-    minHeight: meta.kind === 'core' ? 62 : 50,
-    padding: meta.kind === 'core' ? '13px 14px' : '10px 12px',
+    width: size,
+    height: size,
+    padding: meta.kind === 'core' ? '16px' : '12px',
     background: meta.kind === 'core' ? '#202436' : SURFACE_CARD,
-    border: `1px solid ${isSelected ? meta.accent : BORDER_DEFAULT}`,
-    borderLeft: `3px solid ${meta.accent}`,
-    borderRadius: 8,
+    border: `1px solid ${isSelected ? meta.accent : `${meta.accent}77`}`,
+    borderRadius: '999px',
     color: 'rgba(255,255,255,0.84)',
-    boxShadow: isSelected ? `0 0 0 3px ${meta.accent}22, 0 18px 40px rgba(0,0,0,0.24)` : '0 12px 30px rgba(0,0,0,0.16)',
-    fontSize: meta.kind === 'core' ? 13 : 11,
+    boxShadow: isSelected ? `0 0 0 4px ${meta.accent}26, 0 18px 40px rgba(0,0,0,0.28)` : '0 12px 30px rgba(0,0,0,0.16)',
+    fontSize: meta.kind === 'core' ? 12 : 10,
     fontWeight: 750,
-    lineHeight: 1.2,
+    lineHeight: 1.18,
+    textAlign: 'center',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'grab',
+    whiteSpace: 'normal',
+    wordBreak: 'break-word',
   };
 }
 
 export default function KnowledgeGraphPanel() {
   const [selectedNodeId, setSelectedNodeId] = useState('hub');
+  const [nodePositionsById, setNodePositionsById] = useState(nodePositions);
   const selectedNode = graphMeta.find((node) => node.id === selectedNodeId) || graphMeta[0];
   const relatedEdges = relationshipEdges.filter((edge) => edge.source === selectedNode.id || edge.target === selectedNode.id);
 
+  const graphEdges: Edge[] = relationshipEdges.map((edge) => {
+    const isConnectedToSelected = edge.source === selectedNodeId || edge.target === selectedNodeId;
+    const selectedAccent = selectedNode.accent;
+
+    return {
+      ...edge,
+      animated: isConnectedToSelected,
+      style: {
+        stroke: isConnectedToSelected ? `${selectedAccent}cc` : 'rgba(255,255,255,0.14)',
+        strokeWidth: isConnectedToSelected ? 2.3 : 1.3,
+      },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        color: isConnectedToSelected ? `${selectedAccent}cc` : 'rgba(255,255,255,0.18)',
+      },
+      labelStyle: {
+        fill: isConnectedToSelected ? 'rgba(255,255,255,0.68)' : 'rgba(255,255,255,0.34)',
+        fontSize: 9,
+        fontWeight: 700,
+      },
+      labelBgStyle: {
+        fill: '#14141A',
+        fillOpacity: isConnectedToSelected ? 0.92 : 0.72,
+      },
+    };
+  });
+
   const graphNodes: Node[] = graphMeta.map((meta) => ({
     id: meta.id,
-    position: nodePositions[meta.id],
+    position: nodePositionsById[meta.id],
     data: { label: meta.label },
     style: getNodeStyle(meta, meta.id === selectedNodeId),
   }));
+
+  const handleNodeDragStop: NodeDragHandler = (_, node) => {
+    setNodePositionsById((current) => ({
+      ...current,
+      [node.id]: node.position,
+    }));
+  };
 
   return (
     <section className="flex flex-col gap-4 h-full min-h-[calc(100vh-48px)]">
@@ -348,13 +399,14 @@ export default function KnowledgeGraphPanel() {
         >
           <ReactFlow
             nodes={graphNodes}
-            edges={relationshipEdges}
+            edges={graphEdges}
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
+            onNodeDragStop={handleNodeDragStop}
             fitView
             fitViewOptions={{ padding: 0.2 }}
             minZoom={0.35}
             maxZoom={1.25}
-            nodesDraggable={false}
+            nodesDraggable
             proOptions={{ hideAttribution: true }}
             className="knowledge-graph-flow"
           >
