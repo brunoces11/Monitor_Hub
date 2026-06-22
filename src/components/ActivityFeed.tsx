@@ -26,7 +26,7 @@ const statusStyles: Record<string, { dot: string; iconColor: string }> = {
 };
 
 const loggedUsers = [
-  { name: 'Joao', loggedAt: '07:08 AM' },
+  { name: 'Joana', loggedAt: '07:08 AM' },
   { name: 'Ana', loggedAt: '07:14 AM' },
   { name: 'Marina', loggedAt: '07:19 AM' },
 ];

@@ -140,18 +140,66 @@ export default function RightSidebar({ expanded, onToggle }: RightSidebarProps) 
                 return (
                   <div
                     key={`${message.role}-${index}`}
-                    className="rounded-xl"
+                    className="flex items-end gap-2"
                     style={{
                       alignSelf: isUser ? 'flex-end' : 'flex-start',
-                      maxWidth: isUser ? '88%' : '94%',
-                      padding: isUser ? '9px 10px' : '0 2px',
-                      background: isUser ? SURFACE_RAISED : 'transparent',
-                      border: isUser ? `1px solid ${BORDER_DEFAULT}` : '1px solid transparent',
+                      maxWidth: '94%',
+                      flexDirection: isUser ? 'row-reverse' : 'row',
                     }}
                   >
-                    <PText size="xx-small" theme="dark" color="contrast-medium" style={{ lineHeight: 1.35 }}>
-                      {message.text}
-                    </PText>
+                    {!isUser && (
+                      <div
+                        className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
+                        style={{
+                          width: 28,
+                          height: 28,
+                          padding: 2,
+                          background: SURFACE_RAISED,
+                          border: `1px solid ${BORDER_DEFAULT}`,
+                        }}
+                        aria-label="AI agent avatar"
+                      >
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                          <rect x="6.25" y="5" width="11.5" height="12" rx="4.4" fill="none" stroke="#fff" strokeWidth="1.5" />
+                          <circle cx="9.6" cy="10.5" r="1" fill="#fff" />
+                          <circle cx="14.4" cy="10.5" r="1" fill="#fff" />
+                          <path d="M9.2 13.2c.9.75 1.9 1.1 2.8 1.1s1.9-.35 2.8-1.1" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+                          <path d="M12 3.2v2.3" fill="none" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" />
+                          <circle cx="12" cy="2.3" r="1" fill="#fff" />
+                        </svg>
+                      </div>
+                    )}
+                    {isUser && (
+                      <div
+                        className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
+                        style={{
+                          width: 40,
+                          height: 40,
+                          background: SURFACE_RAISED,
+                          border: `1px solid ${BORDER_DEFAULT}`,
+                        }}
+                        aria-label="Joana avatar"
+                      >
+                        <img
+                          src="/avatars/joana_48.jpg"
+                          alt="Joana"
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        />
+                      </div>
+                    )}
+                    <div
+                      className="rounded-xl"
+                      style={{
+                        maxWidth: isUser ? '88%' : '94%',
+                        padding: isUser ? '9px 10px' : '0 2px',
+                        background: isUser ? SURFACE_RAISED : 'transparent',
+                        border: isUser ? `1px solid ${BORDER_DEFAULT}` : '1px solid transparent',
+                      }}
+                    >
+                      <PText size="xx-small" theme="dark" color="contrast-medium" style={{ lineHeight: 1.35 }}>
+                        {message.text}
+                      </PText>
+                    </div>
                   </div>
                 );
               })}

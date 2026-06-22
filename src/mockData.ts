@@ -8,7 +8,7 @@ export const kpiCards = [
 ];
 
 export const creativeGenerationData = {
-  requestedBy: 'Joao',
+  requestedBy: 'Joana',
   campaign: 'Summer Campaign X',
   creativesRequested: 5,
   style: 'Bold / Clean / Conversion-focused',
@@ -177,7 +177,7 @@ export const activityFeed: Array<{
 export const userActivityFeed = [
   {
     id: 1,
-    user: 'Joao',
+    user: 'Joana',
     action: 'submitted a Creative Generation request',
     target: 'Summer Campaign X',
     time: '2 min ago',

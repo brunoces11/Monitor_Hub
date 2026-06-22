@@ -263,14 +263,18 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           aria-label="User menu"
         >
           <div
-            className="rounded-full flex items-center justify-center flex-shrink-0"
+            className="rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
             style={{ width: 26, height: 26, background: `linear-gradient(135deg, ${BLUE_PRIMARY}, ${BLUE_SECONDARY})`, fontSize: 10, fontWeight: 700, color: '#fff' }}
           >
-            JO
+            <img
+              src="/avatars/joana_48.jpg"
+              alt="Joana"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
           </div>
           {!collapsed && (
             <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
-              Joao
+              Joana
             </PText>
           )}
         </button>

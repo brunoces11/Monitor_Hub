@@ -11,6 +11,7 @@ import AgentHealthPanel from './components/AgentHealthPanel';
 import VpsMonitorCard from './components/VpsMonitorCard';
 import ServiceMonitorCard from './components/ServiceMonitorCard';
 import VideoPublisherTable from './components/VideoPublisherTable';
+import AgentsPanel from './components/AgentsPanel';
 import {
   creativeGenerationData,
   videoAnimationsData,
@@ -39,6 +40,7 @@ export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rightChatExpanded, setRightChatExpanded] = useState(false);
   const [activeSection, setActiveSection] = useState('overview');
+  const mainPadding = activeSection === 'agents' ? '24px 24px 24px' : '20px 8px 8px';
 
   const handleRightChatToggle = () => {
     setRightChatExpanded((current) => {
@@ -60,12 +62,13 @@ export default function App() {
       />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
-        <main className="flex-1 overflow-y-auto" style={{ padding: '20px 8px 8px' }}>
+        <main className="flex-1 overflow-y-auto" style={{ padding: mainPadding }}>
           <div className="relative" style={{ zIndex: 1, maxWidth: '100%' }}>
             {activeSection === 'overview' && <OverviewPanel />}
             {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
             {activeSection === 'creative-studio' && <VideoPublisherPanel />}
-            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && (
+            {activeSection === 'agents' && <AgentsPanel />}
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>
