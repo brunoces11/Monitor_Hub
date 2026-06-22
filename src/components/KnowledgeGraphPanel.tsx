@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import ReactFlow, {
   Background,
+  BaseEdge,
   Controls,
   MiniMap,
   type Edge,
+  type EdgeProps,
   type Node,
   type NodeDragHandler,
 } from 'reactflow';
@@ -31,6 +33,17 @@ type GraphMeta = {
   summary: string;
   facts: string[];
   accent: string;
+};
+
+type FloatingEdgeData = {
+  relation: string;
+  start?: GraphPoint;
+  end?: GraphPoint;
+};
+
+type GraphPoint = {
+  x: number;
+  y: number;
 };
 
 const categoryColors = {
@@ -274,16 +287,56 @@ const relationshipEdges: Edge[] = [
   makeEdge('tasks', 'agents', 'agent execution'),
 ];
 
+const graphMetaById = new Map(graphMeta.map((meta) => [meta.id, meta]));
+
 function makeEdge(source: string, target: string, label: string): Edge {
   return {
     id: `${source}-${target}`,
     source,
     target,
-    type: 'default',
+    type: 'floating',
     data: { relation: label },
     style: { stroke: 'rgba(255,255,255,0.16)', strokeWidth: 1.35 },
   };
 }
+
+function getNodeSize(meta?: GraphMeta) {
+  if (meta?.kind === 'core') return 136;
+  if (meta?.kind === 'domain') return 118;
+  return 104;
+}
+
+function getCircleBoundaryPoint(from: GraphPoint, to: GraphPoint, radius: number) {
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const inset = 2;
+  const safeRadius = Math.max(1, radius - inset);
+
+  return {
+    x: from.x + (dx / distance) * safeRadius,
+    y: from.y + (dy / distance) * safeRadius,
+  };
+}
+
+function FloatingCircleEdge({ id, style, data, interactionWidth }: EdgeProps<FloatingEdgeData>) {
+  if (!data?.start || !data?.end) return null;
+
+  const path = `M ${data.start.x},${data.start.y} L ${data.end.x},${data.end.y}`;
+
+  return (
+    <BaseEdge
+      id={id}
+      path={path}
+      style={style}
+      interactionWidth={interactionWidth}
+    />
+  );
+}
+
+const edgeTypes = {
+  floating: FloatingCircleEdge,
+};
 
 function getNodeStyle(meta: GraphMeta, isSelected: boolean): React.CSSProperties {
   const size = meta.kind === 'core' ? 136 : meta.kind === 'domain' ? 118 : 104;
@@ -319,10 +372,19 @@ export default function KnowledgeGraphPanel() {
   const graphEdges: Edge[] = relationshipEdges.map((edge) => {
     const isConnectedToSelected = edge.source === selectedNodeId || edge.target === selectedNodeId;
     const selectedAccent = selectedNode.accent;
+    const sourceCenter = nodePositionsById[edge.source] || nodePositions[edge.source] || { x: 0, y: 0 };
+    const targetCenter = nodePositionsById[edge.target] || nodePositions[edge.target] || { x: 0, y: 0 };
+    const sourceRadius = getNodeSize(graphMetaById.get(edge.source)) / 2;
+    const targetRadius = getNodeSize(graphMetaById.get(edge.target)) / 2;
 
     return {
       ...edge,
       animated: false,
+      data: {
+        ...edge.data,
+        start: getCircleBoundaryPoint(sourceCenter, targetCenter, sourceRadius),
+        end: getCircleBoundaryPoint(targetCenter, sourceCenter, targetRadius),
+      },
       style: {
         stroke: isConnectedToSelected ? `${selectedAccent}d9` : 'rgba(255,255,255,0.13)',
         strokeWidth: isConnectedToSelected ? 2.15 : 1.25,
@@ -338,7 +400,7 @@ export default function KnowledgeGraphPanel() {
     style: getNodeStyle(meta, meta.id === selectedNodeId),
   }));
 
-  const handleNodeDragStop: NodeDragHandler = (_, node) => {
+  const handleNodeDrag: NodeDragHandler = (_, node) => {
     setNodePositionsById((current) => ({
       ...current,
       [node.id]: node.position,
@@ -382,8 +444,10 @@ export default function KnowledgeGraphPanel() {
           <ReactFlow
             nodes={graphNodes}
             edges={graphEdges}
+            edgeTypes={edgeTypes}
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
-            onNodeDragStop={handleNodeDragStop}
+            onNodeDrag={handleNodeDrag}
+            onNodeDragStop={handleNodeDrag}
             nodeOrigin={[0.5, 0.5]}
             fitView
             fitViewOptions={{ padding: 0.2 }}
