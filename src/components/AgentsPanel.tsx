@@ -23,11 +23,19 @@ type AgentDraft = {
 const initialAgents: AgentConfig[] = [
   {
     type: 'system',
-    name: 'Team Manager',
+    name: 'Manager',
     enabled: true,
     description: 'Coordinates priorities across agents and keeps execution aligned with campaign goals. Reviews task progress, blockers, and handoffs before escalating decisions.',
     prompt: 'Act as the orchestration layer for the HUB. Prioritize active work, identify blockers, assign agent tasks, and produce concise operating updates.',
     tools: ['Task Router', 'Workflow Queue', 'Agent Registry', 'Status Reports'],
+  },
+  {
+    type: 'system',
+    name: 'Transcriptor',
+    enabled: true,
+    description: 'Analyzes meeting transcripts, extracts key decisions and action items, and identifies who owns each follow-up task. Keeps meeting outcomes structured and easy to review.',
+    prompt: 'Review meeting transcripts, identify decisions, action items, owners, deadlines, and concise follow-up summaries for the team.',
+    tools: ['Transcript Parser', 'Action Items', 'Decision Log', 'Follow-up Tracker'],
   },
   {
     type: 'system',
@@ -44,6 +52,14 @@ const initialAgents: AgentConfig[] = [
     description: 'Builds video scripts, scene outlines, hooks, and narration drafts. Converts campaign objectives into structured scripts for short-form content.',
     prompt: 'Create video scripts with hook, setup, value sequence, CTA, and timing notes. Keep language direct and suitable for social video production.',
     tools: ['Script Builder', 'Scene Planner', 'Voiceover Notes', 'Video Briefs'],
+  },
+  {
+    type: 'system',
+    name: 'Campaign Manager',
+    enabled: true,
+    description: 'Coordinates campaign execution across channels, tracks launch status, and keeps approvals, assets, and timelines synchronized. Bridges planning and delivery.',
+    prompt: 'Manage active campaigns, monitor delivery state, track dependencies, and surface next actions when execution needs attention.',
+    tools: ['Campaign Dashboard', 'Launch Tracker', 'Approval Queue', 'Channel Planner'],
   },
   {
     type: 'system',

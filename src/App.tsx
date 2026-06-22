@@ -4,6 +4,7 @@ import RightSidebar from './components/RightSidebar';
 import CreativeGenerationPanel from './components/CreativeGenerationPanel';
 import VideoAnimationsPanel from './components/VideoAnimationsPanel';
 import CampaignCard from './components/CampaignCard';
+import GoogleAdsMonitorCard from './components/GoogleAdsMonitorCard';
 import WorkflowStatusChart from './components/WorkflowStatusChart';
 import ChannelRevenueChart from './components/ChannelRevenueChart';
 import ActivityFeed from './components/ActivityFeed';
@@ -15,6 +16,7 @@ import AgentsPanel from './components/AgentsPanel';
 import {
   creativeGenerationData,
   videoAnimationsData,
+  googleAdsCampaigns,
   instagramCampaignData,
   facebookCampaignData,
   workflowStatusData,
@@ -34,6 +36,7 @@ const sectionLabels: Record<string, string> = {
   'leads-revenue': 'Leads & Revenue',
   workflows: 'Workflows',
   agents: 'Agents',
+  transcriptor: 'Transcriptor',
 };
 
 export default function App() {
@@ -41,7 +44,7 @@ export default function App() {
   const [rightChatExpanded, setRightChatExpanded] = useState(false);
   const [activeChatAgent, setActiveChatAgent] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState('overview');
-  const mainPadding = activeSection === 'agents' ? '24px 24px 24px' : '20px 8px 8px';
+  const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' ? '24px 24px 24px' : '20px 8px 8px';
 
   const handleRightChatToggle = () => {
     setRightChatExpanded((current) => {
@@ -75,7 +78,8 @@ export default function App() {
             {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
             {activeSection === 'creative-studio' && <VideoPublisherPanel />}
             {activeSection === 'agents' && <AgentsPanel onOpenAgentChat={handleOpenAgentChat} />}
-            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && (
+            {activeSection === 'transcriptor' && <TranscriptorPanel />}
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>
@@ -132,6 +136,10 @@ function OverviewPanel() {
 function CampaignMonitorPanel() {
   return (
     <>
+      <div className="mb-5">
+        <GoogleAdsMonitorCard campaigns={googleAdsCampaigns} />
+      </div>
+
       <SectionLabel label="Campaign X - Platform Performance" />
       <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
         <CampaignCard
@@ -172,6 +180,28 @@ function VideoPublisherPanel() {
     <>
       <VideoPublisherTable />
     </>
+  );
+}
+
+function TranscriptorPanel() {
+  return (
+    <div className="rounded-2xl p-6" style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}>
+      <SectionLabel label="Transcriptor" />
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+        <div className="rounded-2xl p-4" style={{ background: '#15151b', border: `1px solid ${BORDER_DEFAULT}` }}>
+          <h3 style={{ margin: 0, color: '#f1f5f9', fontSize: 18, fontWeight: 600 }}>Meeting transcript intelligence</h3>
+          <p style={{ margin: '10px 0 0', color: 'rgba(255,255,255,0.66)', fontSize: 13, lineHeight: 1.5 }}>
+            This session is dedicated to extracting decisions, owners, deadlines, and follow-up items from meeting transcripts.
+          </p>
+        </div>
+        <div className="rounded-2xl p-4" style={{ background: '#15151b', border: `1px solid ${BORDER_DEFAULT}` }}>
+          <h3 style={{ margin: 0, color: '#f1f5f9', fontSize: 18, fontWeight: 600 }}>Action item tracking</h3>
+          <p style={{ margin: '10px 0 0', color: 'rgba(255,255,255,0.66)', fontSize: 13, lineHeight: 1.5 }}>
+            It helps surface who needs to do what after each meeting so nothing gets lost in the handoff.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 

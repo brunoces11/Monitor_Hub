@@ -112,6 +112,48 @@ export const facebookCampaignData = {
   ],
 };
 
+export const googleAdsCampaigns = [
+  {
+    campaign: 'Brand Search - Brazil',
+    status: 'Enabled',
+    budget: 'R$ 320/day',
+    impressions: '84,200',
+    clicks: '6,740',
+    ctr: '8.0%',
+    avgCpc: 'R$ 1.18',
+    conversions: '412',
+    costPerConv: 'R$ 19.31',
+    spend: 'R$ 7,956',
+    roas: '6.4x',
+  },
+  {
+    campaign: 'Performance Max - CRM Demo',
+    status: 'Learning',
+    budget: 'R$ 480/day',
+    impressions: '126,900',
+    clicks: '7,110',
+    ctr: '5.6%',
+    avgCpc: 'R$ 1.54',
+    conversions: '368',
+    costPerConv: 'R$ 29.74',
+    spend: 'R$ 10,945',
+    roas: '4.8x',
+  },
+  {
+    campaign: 'YouTube Retargeting - Q3 Push',
+    status: 'Limited',
+    budget: 'R$ 210/day',
+    impressions: '241,300',
+    clicks: '4,860',
+    ctr: '2.0%',
+    avgCpc: 'R$ 0.72',
+    conversions: '146',
+    costPerConv: 'R$ 23.96',
+    spend: 'R$ 3,498',
+    roas: '3.7x',
+  },
+];
+
 export const workflowStatusData = [
   { name: 'Running', value: 7, color: '#22d3ee' },
   { name: 'Queued', value: 5, color: '#6366f1' },
