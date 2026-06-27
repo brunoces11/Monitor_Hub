@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { PIcon, PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BLUE_SECONDARY, BLUE_GRADIENT, SURFACE_RAISED, BORDER_DEFAULT } from '../theme';
 
+const NAV_GREY = 'rgba(255,255,255,0.56)';
+
 const navItems = [
   { id: 'overview', label: 'System Monitor', icon: 'grid' },
   { id: 'campaign-monitor', label: 'Campaign Monitor', icon: 'chart' },
   { id: 'creative-studio', label: 'Video Publisher', icon: 'upload' },
-  { id: 'leads-revenue', label: 'Leads & Revenue', icon: 'card' },
-  { id: 'agents', label: 'Agents', icon: 'robot' },
-  { id: 'transcriptor', label: 'Transcriptor', icon: 'org-chart' },
-  { id: 'knowledge-graph', label: 'Knowledge Graph', icon: 'knowledge-graph' },
+  { id: 'leads-revenue', label: 'Leads Funnel', icon: 'funnel' },
+  { id: 'agents', label: 'Agent Manager', icon: 'robot' },
+  { id: 'transcriptor', label: 'Transcriptor Agent', icon: 'org-chart' },
+  { id: 'knowledge-graph', label: 'Memory Graph', icon: 'brain' },
   // Hidden for now per current navigation scope:
   // { id: 'thumbnail-creator', label: 'Thumbnail Creator', icon: 'ai-image' },
   // { id: 'video-animations', label: 'Video Creator', icon: 'ai-video' },
@@ -118,16 +120,18 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                     width: 25,
                     height: 25,
                     flexShrink: 0,
-                    opacity: isActive ? 1 : 0.82,
+                    opacity: 1,
                   }}
                 >
-                  <svg viewBox="0 0 24 24" width="23" height="23" aria-hidden="true" focusable="false">
-                    <rect x="6.25" y="5" width="11.5" height="12" rx="4.4" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" />
-                    <circle cx="9.6" cy="10.5" r="1" fill="rgba(255,255,255,0.88)" />
-                    <circle cx="14.4" cy="10.5" r="1" fill="rgba(255,255,255,0.88)" />
-                    <path d="M9.2 13.2c.9.75 1.9 1.1 2.8 1.1s1.9-.35 2.8-1.1" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinecap="round" />
-                    <path d="M12 3.2v2.3" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinecap="round" />
-                    <circle cx="12" cy="2.3" r="1" fill="rgba(255,255,255,0.88)" />
+                  <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false">
+                    <path
+                      d="M12 4.2c-1.8-1.6-4.7-1.3-6.1.8-1.1 1.7-1 4 .3 5.5-.7 1-1 2.1-.8 3.2.3 1.9 1.8 3.4 3.6 3.7.7 1.4 2.2 2.4 3.9 2.4s3.2-1 3.9-2.4c1.8-.3 3.3-1.8 3.6-3.7.2-1.1-.1-2.2-.8-3.2 1.3-1.5 1.4-3.8.3-5.5-1.4-2.1-4.3-2.4-6.1-.8Z"
+                      fill="none"
+                      stroke="rgba(255,255,255,0.88)"
+                      strokeWidth="1.5"
+                      strokeLinejoin="round"
+                    />
+                    <path d="M9 8.2c1 .2 1.8.9 2 1.8M15 8.2c-1 .2-1.8.9-2 1.8M8.8 12.2h6.4M9.3 15.1c.7.7 1.6 1.1 2.7 1.1s2-.4 2.7-1.1" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.35" strokeLinecap="round" />
                   </svg>
                 </span>
               ) : item.icon === 'org-chart' ? (
@@ -174,6 +178,41 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                     <circle cx="12" cy="19" r="2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.45" />
                   </svg>
                 </span>
+              ) : item.icon === 'funnel' ? (
+                <span
+                  aria-label={item.label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 23,
+                    height: 23,
+                    flexShrink: 0,
+                    opacity: 1,
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false">
+                    <path d="M4.5 5.5h15L14 12.1v4.1l-4 2v-6.1L4.5 5.5Z" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinejoin="round" />
+                    <path d="M9.9 10.7h4.2" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </span>
+              ) : item.icon === 'brain' ? (
+                <span
+                  aria-label={item.label}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 23,
+                    height: 23,
+                    flexShrink: 0,
+                    opacity: 1,
+                  }}
+                >
+                  <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true" focusable="false">
+                    <path d="M12 4.4c-1.8-1.5-4.6-1.2-6 .8-1 1.6-1 3.7.2 5.1-.6.9-.9 1.9-.7 3 .3 1.8 1.8 3.2 3.5 3.5.7 1.3 2.1 2.2 3.8 2.2s3.1-.9 3.8-2.2c1.7-.3 3.2-1.7 3.5-3.5.2-1.1-.1-2.1-.7-3 1.2-1.4 1.2-3.5.2-5.1-1.4-2-4.2-2.3-6-.8Z" fill="none" stroke="rgba(255,255,255,0.88)" strokeWidth="1.5" strokeLinejoin="round" />
+                  </svg>
+                </span>
               ) : (
                 <PIcon
                   name={item.icon as never}
@@ -181,7 +220,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                   color="contrast-high"
                   theme="dark"
                   aria={{ 'aria-label': item.label }}
-                  style={{ flexShrink: 0, opacity: isActive ? 1 : 0.82 }}
+                  style={{ flexShrink: 0, opacity: 1 }}
                 />
               )}
               {!collapsed && (
@@ -189,7 +228,7 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                   size="x-small"
                   theme="dark"
                   color="inherit"
-                  style={{ color: isActive ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.4)' }}
+                  style={{ color: NAV_GREY }}
                 >
                   {item.label}
                 </PText>

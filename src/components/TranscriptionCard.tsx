@@ -1,4 +1,5 @@
-import { PIcon, PText } from '@porsche-design-system/components-react';
+import { useState } from 'react';
+import { PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD, SURFACE_RAISED } from '../theme';
 
 type Participant = {
@@ -25,6 +26,7 @@ export type MeetingTranscription = {
 
 interface TranscriptionCardProps {
   meeting: MeetingTranscription;
+  onOpenChat?: (meeting: MeetingTranscription) => void;
 }
 
 function getParticipantInitials(name: string) {
@@ -44,8 +46,9 @@ function ParticipantAvatar({ participant, size = 28 }: { participant: Participan
       style={{
         width: size,
         height: size,
-        background: participant.color || SURFACE_RAISED,
-        border: `1px solid ${BORDER_DEFAULT}`,
+        background: participant.avatar ? '#FFFFFF' : (participant.color || '#FFFFFF'),
+        border: '1px solid rgba(255,255,255,0.95)',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.22)',
         color: '#fff',
         fontSize: Math.max(8, Math.floor(size * 0.34)),
         fontWeight: 700,
@@ -60,8 +63,12 @@ function ParticipantAvatar({ participant, size = 28 }: { participant: Participan
   );
 }
 
-export default function TranscriptionCard({ meeting }: TranscriptionCardProps) {
+export default function TranscriptionCard({ meeting, onOpenChat }: TranscriptionCardProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
   const participantByName = new Map(meeting.participants.map((participant) => [participant.name, participant]));
+  const [titleSource, ...titleRest] = meeting.title.split(': ');
+  const hasTitleSource = titleRest.length > 0;
+  const titleBody = hasTitleSource ? titleRest.join(': ') : meeting.title;
 
   return (
     <section
@@ -89,67 +96,79 @@ export default function TranscriptionCard({ meeting }: TranscriptionCardProps) {
             fontSize: 17,
             fontWeight: 650,
             lineHeight: 1.25,
-            textAlign: 'center',
+            textAlign: 'left',
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
             overflow: 'hidden',
           }}
         >
-          {meeting.title}
+          {hasTitleSource ? (
+            <>
+              <span style={{ color: BLUE_PRIMARY }}>{titleSource}</span>
+              {': '}
+              {titleBody}
+            </>
+          ) : (
+            meeting.title
+          )}
         </h3>
 
-        <div
-          className="rounded-xl flex items-center justify-end"
-          style={{
-            minWidth: 116,
-            minHeight: 40,
-            padding: '6px 9px 6px 14px',
-            background: SURFACE_RAISED,
-            border: `1px solid ${BORDER_SUBTLE}`,
-          }}
-          aria-label={`${meeting.participants.length} participants`}
-        >
-          {meeting.participants.map((participant, index) => (
-            <div key={participant.name} style={{ marginLeft: index === 0 ? 0 : -8, zIndex: meeting.participants.length - index }}>
-              <ParticipantAvatar participant={participant} />
-            </div>
-          ))}
+        <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end" aria-label={`${meeting.participants.length} participants`}>
+            {meeting.participants.map((participant, index) => (
+              <div
+                key={participant.name}
+                style={{
+                  marginLeft: index === 0 ? 0 : -9,
+                  zIndex: meeting.participants.length - index,
+                }}
+              >
+                <ParticipantAvatar participant={participant} />
+              </div>
+            ))}
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsExpanded((current) => !current)}
+            aria-label={isExpanded ? 'Collapse transcription card' : 'Expand transcription card'}
+            aria-expanded={isExpanded}
+            style={collapseButtonStyle}
+          >
+            <span
+              aria-hidden="true"
+              style={{
+                ...chevronStyle,
+                transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+              }}
+            />
+          </button>
         </div>
       </header>
 
-      <div className="grid gap-4 mt-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+      {isExpanded ? (
+        <div className="grid gap-4 mt-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
         <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
+          <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            Summary
+          </PText>
+          <p style={{ margin: 0, color: 'rgba(255,255,255,0.68)', fontSize: 12, lineHeight: 1.5 }}>
+            The team aligned on launch readiness, finalized campaign handoff details, and confirmed the CRM cleanup path.
+            The meeting also clarified the creative review status and the next reporting cadence for the upcoming Q3 push.
+          </p>
           <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
             Key Points
           </PText>
           <ul style={{ margin: 0, paddingLeft: 17, color: 'rgba(255,255,255,0.68)', fontSize: 12, lineHeight: 1.45 }}>
             {meeting.keyPoints.map((point) => (
-              <li key={point} style={{ marginBottom: 7 }}>
+              <li key={point} style={{ marginBottom: 7, listStyle: 'disc' }}>
                 {point}
               </li>
             ))}
           </ul>
-
-          <div className="flex flex-wrap gap-2 mt-auto">
-            <button className="rounded-lg px-3 py-2" style={secondaryButtonStyle}>
-              Summary
-            </button>
-            <button className="rounded-lg px-3 py-2" style={secondaryButtonStyle}>
-              Full
-            </button>
-            <button className="rounded-lg px-3 py-2 flex items-center gap-2" style={chatButtonStyle}>
-              <PIcon name={'chat' as never} size="x-small" color="inherit" theme="dark" aria={{ 'aria-label': 'chat' }} style={{ color: '#061017' }} />
-              Chat
-            </button>
-          </div>
         </div>
 
         <div className="rounded-2xl p-4" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
-          <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Tasks
-          </PText>
-
           <table
             style={{
               width: '100%',
@@ -185,10 +204,58 @@ export default function TranscriptionCard({ meeting }: TranscriptionCardProps) {
             </tbody>
           </table>
         </div>
+
+        <div className="col-span-2 flex items-center justify-end flex-wrap gap-2">
+          <button
+            className="rounded-lg flex items-center justify-center gap-2"
+            style={secondaryButtonStyle}
+            aria-label="Download"
+          >
+            Download
+          </button>
+          <button className="rounded-lg flex items-center justify-center gap-2" style={secondaryButtonStyle} aria-label="Edit">
+            Edit
+          </button>
+          <button
+            className="rounded-lg flex items-center justify-center gap-2"
+            style={chatButtonStyle}
+            onClick={() => onOpenChat?.(meeting)}
+            aria-label="Open chat"
+          >
+            Chat
+          </button>
+          <button className="rounded-lg flex items-center justify-center gap-2" style={approveButtonStyle} aria-label="Approve Record">
+            Approve Record
+          </button>
+        </div>
       </div>
+      ) : null}
     </section>
   );
 }
+
+const collapseButtonStyle: React.CSSProperties = {
+  width: 28,
+  height: 28,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 999,
+  border: `1px solid ${BORDER_DEFAULT}`,
+  background: 'rgba(255,255,255,0.03)',
+  cursor: 'pointer',
+  padding: 0,
+};
+
+const chevronStyle: React.CSSProperties = {
+  width: 8,
+  height: 8,
+  borderRight: '1.5px solid rgba(255,255,255,0.72)',
+  borderBottom: '1.5px solid rgba(255,255,255,0.72)',
+  transform: 'rotate(45deg)',
+  transition: 'transform 160ms ease',
+  marginTop: -2,
+};
 
 const secondaryButtonStyle: React.CSSProperties = {
   background: 'rgba(255,255,255,0.045)',
@@ -197,6 +264,7 @@ const secondaryButtonStyle: React.CSSProperties = {
   cursor: 'pointer',
   fontSize: 12,
   fontWeight: 700,
+  padding: '6px 7px',
 };
 
 const chatButtonStyle: React.CSSProperties = {
@@ -206,6 +274,17 @@ const chatButtonStyle: React.CSSProperties = {
   cursor: 'pointer',
   fontSize: 12,
   fontWeight: 800,
+  padding: '6px 7px',
+};
+
+const approveButtonStyle: React.CSSProperties = {
+  background: '#4ADE80',
+  border: '1px solid rgba(74,222,128,0.18)',
+  color: '#071016',
+  cursor: 'pointer',
+  fontSize: 12,
+  fontWeight: 800,
+  padding: '6px 7px',
 };
 
 const tableHeaderStyle: React.CSSProperties = {

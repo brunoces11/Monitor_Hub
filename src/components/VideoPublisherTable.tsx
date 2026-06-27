@@ -56,11 +56,59 @@ const socialColumns: Array<{ key: Platform; icon: string; label: string }> = [
   { key: 'instagram', icon: 'logo-instagram', label: 'Instagram' },
 ];
 
-const statusColors: Record<VideoItem['status'], string> = {
-  Scheduled: BLUE_PRIMARY,
-  Published: '#4ADE80',
-  Draft: 'rgba(255,255,255,0.48)',
-};
+function StatusGlyph({ status, size = 20 }: { status: VideoItem['status'] | 'Publish now'; size?: number }) {
+  const color =
+    status === 'Published'
+      ? '#4ADE80'
+      : status === 'Scheduled'
+        ? '#FBBF24'
+        : status === 'Draft'
+          ? 'rgba(255,255,255,0.58)'
+          : '#4ADE80';
+
+  if (status === 'Published') {
+    return (
+      <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">
+        <path d="M6.5 12.5 10.1 16.1 17.7 8.5" fill="none" stroke={color} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+
+  if (status === 'Draft') {
+    return (
+      <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">
+        <path d="M7 16.7V19h2.3l7.2-7.2-2.3-2.3L7 16.7Z" fill="none" stroke={color} strokeWidth="1.7" strokeLinejoin="round" strokeLinecap="round" />
+        <path d="M13.2 6.8 15.5 9.1" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  if (status === 'Scheduled') {
+    return (
+      <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="7.2" fill="none" stroke={color} strokeWidth="1.7" />
+        <path d="M12 8.3v4.2l3 1.9" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9.3 5.8h5.4" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} aria-hidden="true" focusable="false">
+      <path d="M14.6 4.9c2.6.5 4.2 2.1 4.7 4.7l-3.8 1-2.7-2.7 1.8-3Z" fill="none" stroke={color} strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M5.7 14.1 9.9 9.9l3.2 3.2-4.2 4.2-3.2.4.4-3.6Z" fill="none" stroke={color} strokeWidth="1.7" strokeLinejoin="round" />
+      <path d="M10.1 13.5 6.6 17" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M15 8.6 18.4 5.2" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function StatusOptionIcon({ label }: { label: 'Publish now' | 'Schedule' | 'Draft' | 'Published' }) {
+  if (label === 'Publish now') return <StatusGlyph status="Publish now" size={21} />;
+  if (label === 'Schedule') return <StatusGlyph status="Scheduled" size={21} />;
+  if (label === 'Published') return <StatusGlyph status="Published" size={21} />;
+  return <StatusGlyph status="Draft" size={21} />;
+}
 
 function EllipsisButton({ onClick, label }: { onClick: () => void; label: string }) {
   return (
@@ -281,12 +329,12 @@ export default function VideoPublisherTable() {
           }}
         >
           <colgroup>
-            <col style={{ width: '12%', minWidth: 110 }} />
+            <col style={{ width: '12%', minWidth: 80 }} />
             <col style={{ width: '18%', minWidth: 160 }} />
-            <col style={{ width: '24%', minWidth: 200 }} />
+            <col style={{ width: '24%', minWidth: 170 }} />
             <col style={{ width: '9%', minWidth: 92 }} />
             <col style={{ width: '5%', minWidth: 52 }} />
-            <col style={{ width: '7%', minWidth: 78 }} />
+            <col style={{ width: '7%', minWidth: 52 }} />
             <col style={{ width: '1.5%', minWidth: 26 }} />
             <col style={{ width: '1.5%', minWidth: 26 }} />
             <col style={{ width: '1.5%', minWidth: 26 }} />
@@ -353,19 +401,23 @@ export default function VideoPublisherTable() {
                   </div>
                 </td>
                 <td style={{ ...cellStyle, textAlign: 'center' }}>
-                  <button
-                    className="rounded-lg inline-flex items-center justify-center"
-                    style={{
-                      width: 28,
-                      height: 28,
-                      background: 'rgba(44,194,238,0.08)',
-                      border: `1px solid rgba(44,194,238,0.2)`,
-                      cursor: 'pointer',
-                    }}
-                    onClick={() => setThumbItem(item)}
-                    aria-label={`Open ${item.name} thumb`}
-                  >
-                    {item.hasThumb && <PIcon name="check" size="x-small" color="inherit" theme="dark" aria={{ 'aria-label': 'thumb assigned' }} style={{ color: BLUE_PRIMARY }} />}
+                    <button
+                      className="rounded-lg inline-flex items-center justify-center"
+                      style={{
+                        width: 28,
+                        height: 28,
+                        background: 'transparent',
+                        border: 'none',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => setThumbItem(item)}
+                      aria-label={`Open ${item.name} thumb`}
+                    >
+                      {item.hasThumb && (
+                      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                        <path d="M6.5 12.5 10.1 16.1 17.7 8.5" fill="none" stroke="#4ADE80" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
                   </button>
                 </td>
                 <td style={compactCellStyle}>
@@ -409,39 +461,39 @@ export default function VideoPublisherTable() {
                 <td style={cellStyle}>
                   <div className="relative">
                     <button
-                      className="rounded-full px-2 py-1 flex items-center gap-1.5"
+                      className="rounded-full flex items-center justify-center"
                       style={{
-                        color: statusColors[item.status],
-                        background: 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${BORDER_SUBTLE}`,
+                        width: 24,
+                        height: 24,
+                        padding: 0,
+                        color: 'rgba(255,255,255,0.9)',
+                        background: 'transparent',
+                        border: 'none',
                         fontWeight: 700,
                         cursor: 'pointer',
-                        fontSize: 11,
                       }}
                       disabled={pendingStatusId === item.id}
                       onClick={() => setOpenStatusId((current) => (current === item.id ? null : item.id))}
                       aria-expanded={openStatusId === item.id}
                     >
                       {pendingStatusId === item.id ? (
-                        <>
-                          <span
-                            className="inline-block"
-                            style={{
-                              width: 9,
-                              height: 9,
-                              borderRadius: 9999,
-                              border: '1.5px solid rgba(255,255,255,0.24)',
-                              borderTopColor: BLUE_PRIMARY,
-                              animation: 'vp-spin 0.8s linear infinite',
-                            }}
-                          />
-                          {item.status}
-                        </>
+                        <span
+                          className="inline-block"
+                          style={{
+                            width: 9,
+                            height: 9,
+                            borderRadius: 9999,
+                            border: '1.5px solid rgba(255,255,255,0.24)',
+                            borderTopColor: BLUE_PRIMARY,
+                            animation: 'vp-spin 0.8s linear infinite',
+                          }}
+                        />
+                      ) : item.status === 'Scheduled' ? (
+                        <StatusGlyph status="Scheduled" />
+                      ) : item.status === 'Published' ? (
+                        <StatusGlyph status="Published" />
                       ) : (
-                        <>
-                          {item.status}
-                          <PIcon name="arrow-compact-down" size="x-small" color="contrast-medium" theme="dark" aria={{ 'aria-label': 'status options' }} />
-                        </>
+                        <StatusGlyph status="Draft" />
                       )}
                     </button>
                     {openStatusId === item.id && (
@@ -479,17 +531,18 @@ export default function VideoPublisherTable() {
                           ).map((option) => (
                             <button
                               key={option.label}
-                              className="rounded-lg px-2 py-1.5 text-left"
+                              className="rounded-lg px-2 py-1.5 text-left flex items-center gap-2"
                               style={{
                                 background: item.status === option.value ? 'rgba(44,194,238,0.1)' : 'rgba(255,255,255,0.03)',
                                 border: item.status === option.value ? `1px solid rgba(44,194,238,0.22)` : '1px solid transparent',
-                                color: item.status === option.value ? BLUE_PRIMARY : 'rgba(255,255,255,0.68)',
+                                color: 'rgba(255,255,255,0.9)',
                                 cursor: 'pointer',
                                 fontSize: 11,
                                 fontWeight: 700,
                               }}
                               onClick={() => updateStatus(item.id, option.value)}
                             >
+                              <StatusOptionIcon label={option.label as 'Publish now' | 'Schedule' | 'Draft' | 'Published'} />
                               {option.label}
                             </button>
                           ))}

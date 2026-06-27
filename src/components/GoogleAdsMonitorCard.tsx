@@ -19,37 +19,38 @@ interface GoogleAdsMonitorCardProps {
   campaigns: GoogleAdsCampaign[];
 }
 
-function getStatusStyles(status: string) {
+function CampaignStatusIcon({ status }: { status: string }) {
   const normalized = status.toLowerCase();
 
   if (normalized === 'enabled') {
-    return {
-      color: '#4ADE80',
-      background: 'rgba(74,222,128,0.08)',
-      border: 'rgba(74,222,128,0.18)',
-    };
+    return (
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+        <path d="M8 6.8 18 12 8 17.2V6.8Z" fill="#4ADE80" />
+      </svg>
+    );
   }
 
   if (normalized === 'learning') {
-    return {
-      color: '#FBBF24',
-      background: 'rgba(251,191,36,0.08)',
-      border: 'rgba(251,191,36,0.18)',
-    };
+    return (
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+        <rect x="7" y="6.6" width="3.2" height="10.8" rx="1" fill="#9CA3AF" />
+        <rect x="13.8" y="6.6" width="3.2" height="10.8" rx="1" fill="#9CA3AF" />
+      </svg>
+    );
   }
 
-  return {
-    color: '#F59E0B',
-    background: 'rgba(245,158,11,0.08)',
-    border: 'rgba(245,158,11,0.18)',
-  };
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+      <rect x="6.8" y="6.8" width="10.4" height="10.4" rx="1.2" fill="#F87171" />
+    </svg>
+  );
 }
 
 const columns: Array<{ key: keyof GoogleAdsCampaign; label: string; width: string }> = [
   { key: 'campaign', label: 'CAMPAIGN', width: '21%' },
-  { key: 'status', label: 'STATUS', width: '8%' },
+  { key: 'status', label: 'STATUS', width: '6.4%' },
   { key: 'budget', label: 'BUDGET', width: '9%' },
-  { key: 'impressions', label: 'IMPRESSIONS', width: '10%' },
+  { key: 'impressions', label: 'PRINTS', width: '10%' },
   { key: 'clicks', label: 'CLICKS', width: '8%' },
   { key: 'ctr', label: 'CTR', width: '6%' },
   { key: 'avgCpc', label: 'AVG CPC', width: '8%' },
@@ -158,20 +159,12 @@ export default function GoogleAdsMonitorCard({ campaigns }: GoogleAdsMonitorCard
                         wordBreak: 'break-word',
                         overflowWrap: 'anywhere',
                         verticalAlign: 'middle',
+                        textAlign: column.key === 'status' ? 'center' : 'left',
                       }}
                     >
                       {column.key === 'status' ? (
-                        <span
-                          className="rounded-full inline-flex items-center"
-                          style={{
-                            padding: '4px 8px',
-                            color: getStatusStyles(value).color,
-                            background: getStatusStyles(value).background,
-                            border: `1px solid ${getStatusStyles(value).border}`,
-                            fontWeight: 700,
-                          }}
-                        >
-                          {value}
+                        <span className="inline-flex w-full items-center justify-center" aria-label={String(value)}>
+                          <CampaignStatusIcon status={String(value)} />
                         </span>
                       ) : column.key === 'roas' ? (
                         <span style={{ color: BLUE_PRIMARY, fontWeight: 700 }}>{value}</span>

@@ -154,12 +154,51 @@ export const googleAdsCampaigns = [
   },
 ];
 
+export const leadGenerationData = [
+  {
+    dateRegistered: '22/06/2026',
+    userName: 'Marcos Silva',
+    email: 'marcos.silva@gmail.com',
+    phone: '+55 11 99876-2211',
+    source: 'Instagram Ads',
+    product: 'Creative Generation',
+    status: 'Purchased',
+  },
+  {
+    dateRegistered: '22/06/2026',
+    userName: 'Beatriz Lima',
+    email: 'beatriz.lima@company.com',
+    phone: '+55 21 98741-8820',
+    source: 'Google Ads',
+    product: 'Campaign Monitor',
+    status: 'Refunded',
+  },
+  {
+    dateRegistered: '21/06/2026',
+    userName: 'Rafael Costa',
+    email: 'rafael.costa@startup.io',
+    phone: '+55 31 99122-4405',
+    source: 'Landing Page',
+    product: 'Video Publisher',
+    status: 'Purchased',
+  },
+  {
+    dateRegistered: '21/06/2026',
+    userName: 'Juliana Pereira',
+    email: 'juliana.pereira@agency.com',
+    phone: '+55 41 99731-1189',
+    source: 'Facebook Ads',
+    product: 'Lead Parser',
+    status: 'Lead',
+  },
+];
+
 export const meetingTranscriptions = [
   {
     id: 'mtg-growth-2026-06-27',
     day: '27',
     month: 'JUN',
-    title: 'Growth sync: Q3 launch readiness, campaign handoff, and CRM follow-up priorities',
+    title: 'ZOOM: Q3 launch readiness, campaign handoff, and CRM follow-up priorities',
     participants: [
       { name: 'Joana', avatar: '/avatars/joana_48.jpg' },
       { name: 'Ana', initials: 'AN', color: '#7C3AED' },

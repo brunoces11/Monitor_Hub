@@ -6,6 +6,7 @@ interface RightSidebarProps {
   expanded: boolean;
   onToggle: () => void;
   activeAgentName?: string | null;
+  openSignal: number;
 }
 
 const assistantMessages = [
@@ -24,7 +25,7 @@ const assistantMessages = [
 ];
 
 const COLLAPSED_WIDTH = 60;
-const DEFAULT_EXPANDED_WIDTH = 228;
+const DEFAULT_EXPANDED_WIDTH = 480;
 const MIN_EXPANDED_WIDTH = 220;
 const MAX_EXPANDED_WIDTH = 520;
 
@@ -32,9 +33,15 @@ function clampWidth(value: number) {
   return Math.min(MAX_EXPANDED_WIDTH, Math.max(MIN_EXPANDED_WIDTH, value));
 }
 
-export default function RightSidebar({ expanded, onToggle, activeAgentName }: RightSidebarProps) {
+export default function RightSidebar({ expanded, onToggle, activeAgentName, openSignal }: RightSidebarProps) {
   const [expandedWidth, setExpandedWidth] = useState(DEFAULT_EXPANDED_WIDTH);
   const [resizing, setResizing] = useState(false);
+
+  useEffect(() => {
+    if (expanded) {
+      setExpandedWidth(DEFAULT_EXPANDED_WIDTH);
+    }
+  }, [expanded, openSignal]);
 
   useEffect(() => {
     if (!resizing) return;

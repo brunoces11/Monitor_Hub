@@ -5,6 +5,7 @@ import CreativeGenerationPanel from './components/CreativeGenerationPanel';
 import VideoAnimationsPanel from './components/VideoAnimationsPanel';
 import CampaignCard from './components/CampaignCard';
 import GoogleAdsMonitorCard from './components/GoogleAdsMonitorCard';
+import LeadGenerationTable from './components/LeadGenerationTable';
 import WorkflowStatusChart from './components/WorkflowStatusChart';
 import ChannelRevenueChart from './components/ChannelRevenueChart';
 import ActivityFeed from './components/ActivityFeed';
@@ -19,6 +20,7 @@ import {
   creativeGenerationData,
   videoAnimationsData,
   googleAdsCampaigns,
+  leadGenerationData,
   meetingTranscriptions,
   instagramCampaignData,
   facebookCampaignData,
@@ -36,32 +38,42 @@ const sectionLabels: Record<string, string> = {
   'thumbnail-creator': 'Thumbnail Creator',
   'video-animations': 'Video Creator',
   'campaign-monitor': 'Campaign Monitor',
-  'leads-revenue': 'Leads & Revenue',
+  'leads-revenue': 'Leads Funnel',
   workflows: 'Workflows',
-  agents: 'Agents',
-  transcriptor: 'Transcriptor',
-  'knowledge-graph': 'Knowledge Graph',
+  agents: 'Agent Manager',
+  transcriptor: 'Transcriptor Agent',
+  'knowledge-graph': 'Memory Graph',
 };
 
 export default function App() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [rightChatExpanded, setRightChatExpanded] = useState(false);
+  const [rightChatOpenSignal, setRightChatOpenSignal] = useState(0);
   const [activeChatAgent, setActiveChatAgent] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState('overview');
   const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' || activeSection === 'knowledge-graph' ? '24px 24px 24px' : '20px 8px 8px';
 
   const handleRightChatToggle = () => {
-    setRightChatExpanded((current) => {
-      const next = !current;
-      if (next) {
-        setSidebarCollapsed(true);
-      }
-      return next;
-    });
+    if (rightChatExpanded) {
+      setRightChatExpanded(false);
+      return;
+    }
+
+    setRightChatOpenSignal((current) => current + 1);
+    setRightChatExpanded(true);
+    setSidebarCollapsed(true);
   };
 
   const handleOpenAgentChat = (agentName: string) => {
     setActiveChatAgent(agentName);
+    setRightChatOpenSignal((current) => current + 1);
+    setRightChatExpanded(true);
+    setSidebarCollapsed(true);
+  };
+
+  const handleOpenTranscriptionChat = () => {
+    setActiveChatAgent('Transcription');
+    setRightChatOpenSignal((current) => current + 1);
     setRightChatExpanded(true);
     setSidebarCollapsed(true);
   };
@@ -80,18 +92,19 @@ export default function App() {
           <div className="relative" style={{ zIndex: 1, maxWidth: '100%' }}>
             {activeSection === 'overview' && <OverviewPanel />}
             {activeSection === 'campaign-monitor' && <CampaignMonitorPanel />}
+            {activeSection === 'leads-revenue' && <LeadsRevenuePanel />}
             {activeSection === 'creative-studio' && <VideoPublisherPanel />}
             {activeSection === 'agents' && <AgentsPanel onOpenAgentChat={handleOpenAgentChat} />}
-            {activeSection === 'transcriptor' && <TranscriptorPanel />}
+            {activeSection === 'transcriptor' && <TranscriptorPanel onOpenTranscriptionChat={handleOpenTranscriptionChat} />}
             {activeSection === 'knowledge-graph' && <KnowledgeGraphPanel />}
-            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && activeSection !== 'knowledge-graph' && (
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'leads-revenue' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && activeSection !== 'knowledge-graph' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>
         </main>
       </div>
 
-      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} activeAgentName={activeChatAgent} />
+      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} activeAgentName={activeChatAgent} openSignal={rightChatOpenSignal} />
     </div>
   );
 }
@@ -149,7 +162,7 @@ function CampaignMonitorPanel() {
       <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
         <CampaignCard
           platform="instagram"
-          title="Campaign X - Instagram"
+          title="Campaign X"
           reach={instagramCampaignData.reach}
           newLeads24h={instagramCampaignData.newLeads24h}
           leadConvRate={instagramCampaignData.leadConvRate}
@@ -163,7 +176,7 @@ function CampaignMonitorPanel() {
         />
         <CampaignCard
           platform="facebook"
-          title="Campaign X - Facebook Ads"
+          title="Campaign X"
           reach={facebookCampaignData.reach}
           newLeads24h={facebookCampaignData.newLeads24h}
           leadConvRate={facebookCampaignData.leadConvRate}
@@ -180,6 +193,16 @@ function CampaignMonitorPanel() {
   );
 }
 
+function LeadsRevenuePanel() {
+  return (
+    <>
+      <div className="mb-5">
+        <LeadGenerationTable leads={leadGenerationData} />
+      </div>
+    </>
+  );
+}
+
 function VideoPublisherPanel() {
   return (
     <>
@@ -188,13 +211,13 @@ function VideoPublisherPanel() {
   );
 }
 
-function TranscriptorPanel() {
+function TranscriptorPanel({ onOpenTranscriptionChat }: { onOpenTranscriptionChat: () => void }) {
   return (
     <>
       <SectionLabel label="Transcriptor" />
       <div className="flex flex-col gap-5">
         {meetingTranscriptions.map((meeting) => (
-          <TranscriptionCard key={meeting.id} meeting={meeting} />
+          <TranscriptionCard key={meeting.id} meeting={meeting} onOpenChat={onOpenTranscriptionChat} />
         ))}
       </div>
     </>

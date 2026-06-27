@@ -1,4 +1,4 @@
-import { PText, PIcon } from '@porsche-design-system/components-react';
+import { PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BLUE_SECONDARY, TREND_UP, TREND_DOWN, SURFACE_CARD, SURFACE_RAISED, BORDER_SUBTLE, BORDER_DEFAULT, BAR_STRONG, BAR_SOFT } from '../theme';
 
 interface ChartPoint {
@@ -27,6 +27,27 @@ const platformConfig = {
   facebook: { icon: 'logo-facebook', accent: BLUE_SECONDARY },
 };
 
+function PlatformLogo({ platform }: { platform: 'instagram' | 'facebook' }) {
+  if (platform === 'instagram') {
+    return (
+      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+        <rect x="5" y="5" width="14" height="14" rx="4" fill="none" stroke="#FFFFFF" strokeWidth="1.7" />
+        <circle cx="12" cy="12" r="3.2" fill="none" stroke="#FFFFFF" strokeWidth="1.7" />
+        <circle cx="16.4" cy="7.6" r="1" fill="#FFFFFF" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+      <path
+        d="M14.5 4.5h2.7V8h-2.7c-.8 0-1.1.3-1.1 1.1V10h3.8l-.5 3.1h-3.3V20h-3.2v-6.9H8.1V10h2.1v-1.6c0-2.2 1.4-3.9 4.3-3.9Z"
+        fill="#FFFFFF"
+      />
+    </svg>
+  );
+}
+
 function SvgGroupedBars({ data }: { data: ChartPoint[] }) {
   const w = 300, h = 80;
   const maxVal = Math.max(...data.flatMap(d => [d.leads, d.sales]));
@@ -54,7 +75,7 @@ function SvgGroupedBars({ data }: { data: ChartPoint[] }) {
 
 export default function CampaignCard({
   platform, title, reach, newLeads24h, leadConvRate, salesConvRate,
-  productSales, trend, trendUp, status, chartData,
+  productSales, trend, trendUp, chartData,
 }: CampaignCardProps) {
   const cfg = platformConfig[platform];
 
@@ -69,17 +90,11 @@ export default function CampaignCard({
             className="rounded-xl flex items-center justify-center flex-shrink-0"
             style={{ width: 36, height: 36, background: SURFACE_RAISED, border: `1px solid ${BORDER_DEFAULT}` }}
           >
-            <PIcon name={cfg.icon as any} size="small" color="inherit" theme="dark" aria={{ 'aria-label': platform }} style={{ color: cfg.accent }} />
+            <PlatformLogo platform={platform} />
           </div>
           <PText size="medium" weight="semi-bold" theme="dark" color="primary">{title}</PText>
         </div>
         <div className="flex items-center gap-2">
-          <div
-            className="rounded-full px-2 py-0.5"
-            style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_DEFAULT}` }}
-          >
-            <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)' }}>{status}</span>
-          </div>
           <div
             className="rounded-full px-2 py-0.5"
             style={{ background: trendUp ? 'rgba(74,222,128,0.08)' : 'rgba(248,113,113,0.08)', border: `1px solid ${trendUp ? 'rgba(74,222,128,0.18)' : 'rgba(248,113,113,0.18)'}` }}
