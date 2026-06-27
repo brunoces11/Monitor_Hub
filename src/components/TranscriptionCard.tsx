@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD, SURFACE_RAISED } from '../theme';
 
@@ -19,14 +19,27 @@ export type MeetingTranscription = {
   day: string;
   month: string;
   title: string;
+  summary: string;
   participants: Participant[];
   keyPoints: string[];
   tasks: TranscriptionTask[];
+  initiallyExpanded?: boolean;
 };
 
 interface TranscriptionCardProps {
   meeting: MeetingTranscription;
   onOpenChat?: (meeting: MeetingTranscription) => void;
+}
+
+function getTranscriptionCardStorageKey(meetingId: string) {
+  return `monitor-hub-transcription-card:${meetingId}`;
+}
+
+function readExpandedState(meetingId: string, fallbackExpanded = true) {
+  if (typeof window === 'undefined') return fallbackExpanded;
+
+  const rawValue = window.localStorage.getItem(getTranscriptionCardStorageKey(meetingId));
+  return rawValue === null ? fallbackExpanded : rawValue === 'true';
 }
 
 function getParticipantInitials(name: string) {
@@ -64,11 +77,16 @@ function ParticipantAvatar({ participant, size = 28 }: { participant: Participan
 }
 
 export default function TranscriptionCard({ meeting, onOpenChat }: TranscriptionCardProps) {
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(() => readExpandedState(meeting.id, meeting.initiallyExpanded ?? true));
   const participantByName = new Map(meeting.participants.map((participant) => [participant.name, participant]));
   const [titleSource, ...titleRest] = meeting.title.split(': ');
   const hasTitleSource = titleRest.length > 0;
   const titleBody = hasTitleSource ? titleRest.join(': ') : meeting.title;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(getTranscriptionCardStorageKey(meeting.id), String(isExpanded));
+  }, [isExpanded, meeting.id]);
 
   return (
     <section
@@ -135,101 +153,120 @@ export default function TranscriptionCard({ meeting, onOpenChat }: Transcription
             aria-expanded={isExpanded}
             style={collapseButtonStyle}
           >
-            <span
+            <svg
               aria-hidden="true"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
               style={{
-                ...chevronStyle,
+                ...chevronIconStyle,
                 transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
               }}
-            />
+            >
+              <path d="M6 9.5 12 15.5 18 9.5" />
+            </svg>
           </button>
         </div>
       </header>
 
-      {isExpanded ? (
-        <div className="grid gap-4 mt-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
-        <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
-          <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Summary
-          </PText>
-          <p style={{ margin: 0, color: 'rgba(255,255,255,0.68)', fontSize: 12, lineHeight: 1.5 }}>
-            The team aligned on launch readiness, finalized campaign handoff details, and confirmed the CRM cleanup path.
-            The meeting also clarified the creative review status and the next reporting cadence for the upcoming Q3 push.
-          </p>
-          <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            Key Points
-          </PText>
-          <ul style={{ margin: 0, paddingLeft: 17, color: 'rgba(255,255,255,0.68)', fontSize: 12, lineHeight: 1.45 }}>
-            {meeting.keyPoints.map((point) => (
-              <li key={point} style={{ marginBottom: 7, listStyle: 'disc' }}>
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateRows: isExpanded ? '1fr' : '0fr',
+          opacity: isExpanded ? 1 : 0,
+          marginTop: isExpanded ? 20 : 0,
+          transition: [
+            'grid-template-rows 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+            'opacity 180ms cubic-bezier(0.22, 1, 0.36, 1)',
+            'margin-top 220ms cubic-bezier(0.22, 1, 0.36, 1)',
+          ].join(', '),
+        }}
+        aria-hidden={!isExpanded}
+      >
+        <div style={{ overflow: 'hidden', minHeight: 0 }}>
+          <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+            <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
+              <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                Summary
+              </PText>
+              <p style={{ margin: 0, color: 'rgba(255,255,255,0.68)', fontSize: 12, lineHeight: 1.5 }}>
+                {meeting.summary}
+              </p>
+              <PText size="xx-small" theme="dark" color="contrast-medium" style={{ letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+                Key Points
+              </PText>
+              <ul style={{ margin: 0, paddingLeft: 17, color: 'rgba(255,255,255,0.68)', fontSize: 12, lineHeight: 1.45 }}>
+                {meeting.keyPoints.map((point) => (
+                  <li key={point} style={{ marginBottom: 7, listStyle: 'disc' }}>
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-        <div className="rounded-2xl p-4" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
-          <table
-            style={{
-              width: '100%',
-              marginTop: 10,
-              borderCollapse: 'collapse',
-              fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
-              fontSize: 11,
-              lineHeight: 1.25,
-            }}
-          >
-            <thead>
-              <tr>
-                <th style={tableHeaderStyle}>TASK</th>
-                <th style={{ ...tableHeaderStyle, width: 92 }}>OWNER</th>
-              </tr>
-            </thead>
-            <tbody>
-              {meeting.tasks.map((task) => {
-                const owner = participantByName.get(task.owner) || { name: task.owner };
-
-                return (
-                  <tr key={task.task}>
-                    <td style={tableCellStyle}>{task.task}</td>
-                    <td style={tableCellStyle}>
-                      <div className="flex items-center gap-2">
-                        <ParticipantAvatar participant={owner} size={24} />
-                        <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>{task.owner}</span>
-                      </div>
-                    </td>
+            <div className="rounded-2xl p-4" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
+              <table
+                style={{
+                  width: '100%',
+                  marginTop: 10,
+                  borderCollapse: 'collapse',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
+                  fontSize: 11,
+                  lineHeight: 1.25,
+                }}
+              >
+                <thead>
+                  <tr>
+                    <th style={tableHeaderStyle}>TASK</th>
+                    <th style={{ ...tableHeaderStyle, width: 92 }}>OWNER</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {meeting.tasks.map((task) => {
+                    const owner = participantByName.get(task.owner) || { name: task.owner };
 
-        <div className="col-span-2 flex items-center justify-end flex-wrap gap-2">
-          <button
-            className="rounded-lg flex items-center justify-center gap-2"
-            style={secondaryButtonStyle}
-            aria-label="Download"
-          >
-            Download
-          </button>
-          <button className="rounded-lg flex items-center justify-center gap-2" style={secondaryButtonStyle} aria-label="Edit">
-            Edit
-          </button>
-          <button
-            className="rounded-lg flex items-center justify-center gap-2"
-            style={chatButtonStyle}
-            onClick={() => onOpenChat?.(meeting)}
-            aria-label="Open chat"
-          >
-            Chat
-          </button>
-          <button className="rounded-lg flex items-center justify-center gap-2" style={approveButtonStyle} aria-label="Approve Record">
-            Approve Record
-          </button>
+                    return (
+                      <tr key={task.task}>
+                        <td style={tableCellStyle}>{task.task}</td>
+                        <td style={tableCellStyle}>
+                          <div className="flex items-center gap-2">
+                            <ParticipantAvatar participant={owner} size={24} />
+                            <span style={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>{task.owner}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="col-span-2 flex items-center justify-end flex-wrap gap-2">
+              <button
+                className="rounded-lg flex items-center justify-center gap-2"
+                style={secondaryButtonStyle}
+                aria-label="Download"
+              >
+                Download
+              </button>
+              <button className="rounded-lg flex items-center justify-center gap-2" style={secondaryButtonStyle} aria-label="Edit">
+                Edit
+              </button>
+              <button
+                className="rounded-lg flex items-center justify-center gap-2"
+                style={chatButtonStyle}
+                onClick={() => onOpenChat?.(meeting)}
+                aria-label="Open chat"
+              >
+                Chat
+              </button>
+              <button className="rounded-lg flex items-center justify-center gap-2" style={approveButtonStyle} aria-label="Approve Record">
+                Approve Record
+              </button>
+            </div>
+          </div>
         </div>
       </div>
-      ) : null}
     </section>
   );
 }
@@ -247,14 +284,13 @@ const collapseButtonStyle: React.CSSProperties = {
   padding: 0,
 };
 
-const chevronStyle: React.CSSProperties = {
-  width: 8,
-  height: 8,
-  borderRight: '1.5px solid rgba(255,255,255,0.72)',
-  borderBottom: '1.5px solid rgba(255,255,255,0.72)',
-  transform: 'rotate(45deg)',
+const chevronIconStyle: React.CSSProperties = {
+  stroke: 'rgba(255,255,255,0.72)',
+  strokeWidth: 1.8,
+  fill: 'none',
+  strokeLinecap: 'round',
+  strokeLinejoin: 'round',
   transition: 'transform 160ms ease',
-  marginTop: -2,
 };
 
 const secondaryButtonStyle: React.CSSProperties = {

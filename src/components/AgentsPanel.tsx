@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { PIcon, PText } from '@porsche-design-system/components-react';
-import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD, SURFACE_RAISED } from '../theme';
+import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD, SURFACE_RAISED, TREND_UP } from '../theme';
 
 type AgentType = 'system' | 'client';
 
@@ -189,7 +189,7 @@ export default function AgentsPanel({ onOpenAgentChat }: AgentsPanelProps) {
           />
           <span
             style={{
-              color: BLUE_PRIMARY,
+              color: TREND_UP,
               fontSize: 27,
               fontWeight: 600,
               lineHeight: 1.15,
@@ -250,7 +250,7 @@ export default function AgentsPanel({ onOpenAgentChat }: AgentsPanelProps) {
         />
         <span
           style={{
-            color: BLUE_PRIMARY,
+            color: TREND_UP,
             fontSize: 27,
             fontWeight: 600,
             lineHeight: 1.15,
@@ -580,10 +580,10 @@ function AgentCard({
         <div className="min-w-0">
           <PText
             size="medium"
-            weight="semi-bold"
+            weight="regular"
             theme="dark"
             color="primary"
-            style={{ fontSize: '58%', lineHeight: 1.15, color: 'rgba(255,255,255,0.5)' }}
+            style={{ fontSize: '85%', lineHeight: 1.15, color: BLUE_PRIMARY }}
           >
             {agent.name}
           </PText>
@@ -683,7 +683,7 @@ function ToolTags({ tools }: { tools: string[] }) {
           style={{
             padding: '3px 8px',
             background: 'rgba(255,255,255,0.045)',
-            border: `1px solid rgba(44, 194, 238, 0.8)`,
+            border: '1px solid rgba(255,255,255,0.24)',
             color: 'rgba(255,255,255,0.58)',
             fontSize: 10,
             fontWeight: 700,

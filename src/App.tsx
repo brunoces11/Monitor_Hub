@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from './components/Sidebar';
 import RightSidebar from './components/RightSidebar';
 import CreativeGenerationPanel from './components/CreativeGenerationPanel';
@@ -45,13 +45,58 @@ const sectionLabels: Record<string, string> = {
   'knowledge-graph': 'Memory Graph',
 };
 
+const UI_STATE_STORAGE_KEY = 'monitor-hub-ui-state';
+
+type PersistedUiState = {
+  activeSection: string;
+  sidebarCollapsed: boolean;
+  rightChatExpanded: boolean;
+  activeChatAgent: string | null;
+};
+
+function readPersistedUiState(): PersistedUiState | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const rawValue = window.localStorage.getItem(UI_STATE_STORAGE_KEY);
+    if (!rawValue) return null;
+
+    const parsedValue = JSON.parse(rawValue) as Partial<PersistedUiState>;
+    if (typeof parsedValue.activeSection !== 'string') return null;
+
+    return {
+      activeSection: parsedValue.activeSection,
+      sidebarCollapsed: parsedValue.sidebarCollapsed ?? false,
+      rightChatExpanded: parsedValue.rightChatExpanded ?? false,
+      activeChatAgent: typeof parsedValue.activeChatAgent === 'string' ? parsedValue.activeChatAgent : null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [rightChatExpanded, setRightChatExpanded] = useState(false);
+  const persistedUiState = readPersistedUiState();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(persistedUiState?.sidebarCollapsed ?? false);
+  const [rightChatExpanded, setRightChatExpanded] = useState(persistedUiState?.rightChatExpanded ?? false);
   const [rightChatOpenSignal, setRightChatOpenSignal] = useState(0);
-  const [activeChatAgent, setActiveChatAgent] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState('overview');
+  const [activeChatAgent, setActiveChatAgent] = useState<string | null>(persistedUiState?.activeChatAgent ?? null);
+  const [activeSection, setActiveSection] = useState(persistedUiState?.activeSection ?? 'overview');
   const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' || activeSection === 'knowledge-graph' ? '24px 24px 24px' : '20px 8px 8px';
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    window.localStorage.setItem(
+      UI_STATE_STORAGE_KEY,
+      JSON.stringify({
+        activeSection,
+        sidebarCollapsed,
+        rightChatExpanded,
+        activeChatAgent,
+      } satisfies PersistedUiState),
+    );
+  }, [activeChatAgent, activeSection, rightChatExpanded, sidebarCollapsed]);
 
   const handleRightChatToggle = () => {
     if (rightChatExpanded) {
