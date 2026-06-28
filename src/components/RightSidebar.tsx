@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PIcon, PText } from '@porsche-design-system/components-react';
 import { BLUE_GRADIENT, BLUE_PRIMARY, BORDER_DEFAULT, SURFACE_RAISED } from '../theme';
 
@@ -6,103 +6,149 @@ interface RightSidebarProps {
   expanded: boolean;
   onToggle: () => void;
   activeAgentName?: string | null;
-  openSignal: number;
 }
 
-const assistantMessages = [
+type ChatRole = 'assistant' | 'user';
+
+type ChatMessage = {
+  id: string;
+  role: ChatRole;
+  text: string;
+};
+
+const RIGHT_CHAT_STORAGE_KEY = 'monitor-hub-right-sidebar-chat';
+
+const defaultChatMessages: ChatMessage[] = [
   {
+    id: 'welcome-assistant',
     role: 'assistant',
     text: 'Ready to help with monitor alerts, publishing tasks, and workflow checks.',
-  },
-  {
-    role: 'user',
-    text: 'Show me what needs attention today.',
-  },
-  {
-    role: 'assistant',
-    text: 'Server load is stable. Two campaign automations are ready for review.',
   },
 ];
 
 const COLLAPSED_WIDTH = 60;
-const DEFAULT_EXPANDED_WIDTH = 480;
-const MIN_EXPANDED_WIDTH = 220;
-const MAX_EXPANDED_WIDTH = 520;
+const EXPANDED_WIDTH = 505;
 
-function clampWidth(value: number) {
-  return Math.min(MAX_EXPANDED_WIDTH, Math.max(MIN_EXPANDED_WIDTH, value));
+function readPersistedChatMessages(): ChatMessage[] {
+  if (typeof window === 'undefined') return defaultChatMessages;
+
+  try {
+    const rawValue = window.localStorage.getItem(RIGHT_CHAT_STORAGE_KEY);
+    if (!rawValue) return defaultChatMessages;
+
+    const parsedValue = JSON.parse(rawValue) as unknown;
+    if (!Array.isArray(parsedValue)) return defaultChatMessages;
+
+    const messages = parsedValue.filter((item): item is ChatMessage => {
+      return Boolean(
+        item &&
+          typeof item === 'object' &&
+          'id' in item &&
+          'role' in item &&
+          'text' in item &&
+          typeof (item as ChatMessage).id === 'string' &&
+          ((item as ChatMessage).role === 'assistant' || (item as ChatMessage).role === 'user') &&
+          typeof (item as ChatMessage).text === 'string',
+      );
+    });
+
+    return messages.length > 0 ? messages : defaultChatMessages;
+  } catch {
+    return defaultChatMessages;
+  }
 }
 
-export default function RightSidebar({ expanded, onToggle, activeAgentName, openSignal }: RightSidebarProps) {
-  const [expandedWidth, setExpandedWidth] = useState(DEFAULT_EXPANDED_WIDTH);
-  const [resizing, setResizing] = useState(false);
+function buildAssistantReply(userText: string, activeAgentName?: string | null) {
+  const normalizedText = userText.toLowerCase();
+  const agentLabel = activeAgentName ? `${activeAgentName} ` : '';
+
+  if (normalizedText.includes('status') || normalizedText.includes('today')) {
+    return `I checked the current ${agentLabel}signals. The workspace looks stable, and the most relevant items are ready for review.`;
+  }
+
+  if (normalizedText.includes('email') || normalizedText.includes('inbox')) {
+    return 'I can help triage the inbox. I would start by grouping urgent threads, labeling client requests, and drafting replies for the highest-priority messages.';
+  }
+
+  if (normalizedText.includes('graph') || normalizedText.includes('memory')) {
+    return 'For the memory graph, I can identify the connected nodes, compress the relations, and surface the most relevant links first.';
+  }
+
+  if (normalizedText.includes('campaign') || normalizedText.includes('lead')) {
+    return 'I can review the campaign flow and lead signals, then summarize what is active, what is blocked, and what should be prioritized next.';
+  }
+
+  return `I can help with that. If you want, I can break it into a short action plan or summarize the next step for ${activeAgentName ? activeAgentName : 'the workspace'}.`;
+}
+
+export default function RightSidebar({ expanded, onToggle, activeAgentName }: RightSidebarProps) {
+  const [draftMessage, setDraftMessage] = useState('');
+  const [messages, setMessages] = useState<ChatMessage[]>(readPersistedChatMessages);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const replyTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (expanded) {
-      setExpandedWidth(DEFAULT_EXPANDED_WIDTH);
-    }
-  }, [expanded, openSignal]);
+    if (typeof window === 'undefined') return;
+
+    window.localStorage.setItem(RIGHT_CHAT_STORAGE_KEY, JSON.stringify(messages));
+  }, [messages]);
 
   useEffect(() => {
-    if (!resizing) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [expanded, messages]);
 
-    const handleMouseMove = (event: MouseEvent) => {
-      setExpandedWidth(clampWidth(window.innerWidth - event.clientX));
-    };
-
-    const handleMouseUp = () => {
-      setResizing(false);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-
+  useEffect(() => {
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      if (replyTimerRef.current !== null) {
+        window.clearTimeout(replyTimerRef.current);
+      }
     };
-  }, [resizing]);
+  }, []);
+
+  const handleSendMessage = () => {
+    const text = draftMessage.trim();
+    if (!text) return;
+
+    if (replyTimerRef.current !== null) {
+      window.clearTimeout(replyTimerRef.current);
+      replyTimerRef.current = null;
+    }
+
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      text,
+    };
+
+    setMessages((current) => [...current, userMessage]);
+    setDraftMessage('');
+
+    replyTimerRef.current = window.setTimeout(() => {
+      const assistantMessage: ChatMessage = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        text: buildAssistantReply(text, activeAgentName),
+      };
+
+      setMessages((current) => [...current, assistantMessage]);
+      replyTimerRef.current = null;
+    }, 650);
+  };
 
   return (
     <aside
       className="flex flex-col h-full transition-all duration-300"
       style={{
-        width: expanded ? expandedWidth : COLLAPSED_WIDTH,
+        width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
+        minWidth: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
+        maxWidth: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
+        flexBasis: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
         flexShrink: 0,
         background: '#0d0d12',
         borderLeft: `1px solid ${BORDER_DEFAULT}`,
         position: 'relative',
-        transitionProperty: resizing ? 'none' : undefined,
       }}
     >
-      {expanded && (
-        <button
-          type="button"
-          aria-label="Resize AI chat sidebar"
-          onMouseDown={(event) => {
-            event.preventDefault();
-            setResizing(true);
-          }}
-          style={{
-            position: 'absolute',
-            left: -4,
-            top: 0,
-            width: 8,
-            height: '100%',
-            border: 'none',
-            background: 'transparent',
-            cursor: 'col-resize',
-            zIndex: 5,
-          }}
-        />
-      )}
-
       <div
         className="flex items-center flex-shrink-0"
         style={{
@@ -143,11 +189,11 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName, open
         <>
           <div className="flex-1 min-h-0 px-3 py-4 overflow-y-auto">
             <div className="flex flex-col gap-3">
-              {assistantMessages.map((message, index) => {
+              {messages.map((message) => {
                 const isUser = message.role === 'user';
                 return (
                   <div
-                    key={`${message.role}-${index}`}
+                    key={message.id}
                     className="flex items-end gap-2"
                     style={{
                       alignSelf: isUser ? 'flex-end' : 'flex-start',
@@ -211,6 +257,7 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName, open
                   </div>
                 );
               })}
+              <div ref={messagesEndRef} />
             </div>
           </div>
 
@@ -239,6 +286,14 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName, open
               <input
                 aria-label="AI chat message"
                 placeholder={activeAgentName ? `Message ${activeAgentName}...` : 'Ask the HUB...'}
+                value={draftMessage}
+                onChange={(event) => setDraftMessage(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter') {
+                    event.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
                 style={{
                   flex: 1,
                   minWidth: 0,
@@ -269,6 +324,8 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName, open
                 className="hub-tooltip flex items-center justify-center rounded-lg"
                 data-tooltip="Send message"
                 data-tooltip-side="top"
+                type="button"
+                onClick={handleSendMessage}
                 style={{
                   width: 30,
                   height: 30,

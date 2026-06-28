@@ -5,13 +5,24 @@ $WorkDirWin = "C:\Users\Bruno\Desktop\GITHUB\MONITOR_HUB"
 $WorkDirWsl = "/mnt/c/Users/Bruno/Desktop/GITHUB/MONITOR_HUB"
 $LocalCompose = "C:\Users\Bruno\Desktop\compose\hub_monitor.yml"
 $Image = "ghcr.io/brunoces11/monitor-hub"
-$Version = "v1.0.4"
 $Vps = "contabo"
 $RemoteCompose = "/compose/hub_monitor.yml"
 
 wsl -d $Distro -u root -- bash -lc 'systemctl start docker && docker info >/dev/null'
 
 cd $WorkDirWin
+
+$ComposeText = Get-Content $LocalCompose -Raw
+$VersionMatch = [regex]::Match($ComposeText, 'image:\s*ghcr\.io/brunoces11/monitor-hub:v(?<major>\d+)\.(?<minor>\d+)\.(?<patch>\d+)')
+if (-not $VersionMatch.Success) {
+  throw "Nao foi possivel identificar a versao atual em $LocalCompose"
+}
+
+$Major = [int]$VersionMatch.Groups['major'].Value
+$Minor = [int]$VersionMatch.Groups['minor'].Value
+$Patch = [int]$VersionMatch.Groups['patch'].Value + 1
+$Version = "v$Major.$Minor.$Patch"
+
 $Commit = git rev-parse --short HEAD
 
 gh auth token | wsl -d $Distro -u root -- docker login ghcr.io -u brunoces11 --password-stdin
@@ -30,7 +41,6 @@ $Timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $LocalBackup = "$LocalCompose`_bak_$Timestamp"
 Copy-Item $LocalCompose $LocalBackup -Force
 
-$ComposeText = Get-Content $LocalCompose -Raw
 $ComposeText = $ComposeText -replace "image:\s*ghcr\.io/brunoces11/monitor-hub:[^\r\n]+", "image: ${Image}:${Version}"
 Set-Content -Path $LocalCompose -Value $ComposeText -Encoding UTF8
 

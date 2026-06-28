@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PText } from '@porsche-design-system/components-react';
 import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD, SURFACE_RAISED } from '../theme';
 
@@ -42,6 +42,25 @@ function readExpandedState(meetingId: string, fallbackExpanded = true) {
   return rawValue === null ? fallbackExpanded : rawValue === 'true';
 }
 
+function getScrollableAncestor(element: HTMLElement | null) {
+  if (!element || typeof window === 'undefined') return null;
+
+  let currentParent = element.parentElement;
+
+  while (currentParent) {
+    const computedStyle = window.getComputedStyle(currentParent);
+    const overflowY = computedStyle.overflowY;
+
+    if ((overflowY === 'auto' || overflowY === 'scroll') && currentParent.scrollHeight > currentParent.clientHeight) {
+      return currentParent;
+    }
+
+    currentParent = currentParent.parentElement;
+  }
+
+  return null;
+}
+
 function getParticipantInitials(name: string) {
   return name
     .split(' ')
@@ -78,6 +97,8 @@ function ParticipantAvatar({ participant, size = 28 }: { participant: Participan
 
 export default function TranscriptionCard({ meeting, onOpenChat }: TranscriptionCardProps) {
   const [isExpanded, setIsExpanded] = useState(() => readExpandedState(meeting.id, meeting.initiallyExpanded ?? true));
+  const cardRef = useRef<HTMLElement | null>(null);
+  const shouldScrollOnExpandRef = useRef(false);
   const participantByName = new Map(meeting.participants.map((participant) => [participant.name, participant]));
   const [titleSource, ...titleRest] = meeting.title.split(': ');
   const hasTitleSource = titleRest.length > 0;
@@ -88,8 +109,57 @@ export default function TranscriptionCard({ meeting, onOpenChat }: Transcription
     window.localStorage.setItem(getTranscriptionCardStorageKey(meeting.id), String(isExpanded));
   }, [isExpanded, meeting.id]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isExpanded || !shouldScrollOnExpandRef.current) return;
+
+    shouldScrollOnExpandRef.current = false;
+
+    const scrollCardIntoView = () => {
+      const cardElement = cardRef.current;
+      if (!cardElement) return;
+      const scrollContainer = getScrollableAncestor(cardElement);
+      const topPadding = 20;
+      const bottomPadding = 20;
+
+      if (scrollContainer) {
+        const cardRect = cardElement.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+        const visibleTop = containerRect.top + topPadding;
+        const visibleBottom = containerRect.bottom - bottomPadding;
+        const overflowBottom = cardRect.bottom - visibleBottom;
+        const overflowTop = cardRect.top - visibleTop;
+
+        if (overflowBottom > 0) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollTop + overflowBottom,
+            behavior: 'smooth',
+          });
+          return;
+        }
+
+        if (overflowTop < 0) {
+          scrollContainer.scrollTo({
+            top: scrollContainer.scrollTop + overflowTop,
+            behavior: 'smooth',
+          });
+        }
+
+        return;
+      }
+
+      cardElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    const frameId = window.requestAnimationFrame(() => {
+      window.setTimeout(scrollCardIntoView, 240);
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [isExpanded]);
+
   return (
     <section
+      ref={cardRef}
       className="rounded-2xl p-4"
       style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}
       aria-label={meeting.title}
@@ -148,7 +218,12 @@ export default function TranscriptionCard({ meeting, onOpenChat }: Transcription
           </div>
           <button
             type="button"
-            onClick={() => setIsExpanded((current) => !current)}
+            onClick={() =>
+              setIsExpanded((current) => {
+                shouldScrollOnExpandRef.current = !current;
+                return !current;
+              })
+            }
             aria-label={isExpanded ? 'Collapse transcription card' : 'Expand transcription card'}
             aria-expanded={isExpanded}
             style={collapseButtonStyle}

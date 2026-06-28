@@ -25,6 +25,8 @@ import {
   meetingTranscriptions,
   instagramCampaignData,
   facebookCampaignData,
+  organicSiteCampaignData,
+  organicYoutubeCampaignData,
   workflowStatusData,
   channelRevenueData,
   userActivityFeed,
@@ -81,7 +83,6 @@ export default function App() {
   const persistedUiState = readPersistedUiState();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(persistedUiState?.sidebarCollapsed ?? false);
   const [rightChatExpanded, setRightChatExpanded] = useState(persistedUiState?.rightChatExpanded ?? false);
-  const [rightChatOpenSignal, setRightChatOpenSignal] = useState(0);
   const [activeChatAgent, setActiveChatAgent] = useState<string | null>(persistedUiState?.activeChatAgent ?? null);
   const [activeSection, setActiveSection] = useState(persistedUiState?.activeSection ?? 'overview');
   const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' || activeSection === 'knowledge-graph'
@@ -110,21 +111,18 @@ export default function App() {
       return;
     }
 
-    setRightChatOpenSignal((current) => current + 1);
     setRightChatExpanded(true);
     setSidebarCollapsed(true);
   };
 
   const handleOpenAgentChat = (agentName: string) => {
     setActiveChatAgent(agentName);
-    setRightChatOpenSignal((current) => current + 1);
     setRightChatExpanded(true);
     setSidebarCollapsed(true);
   };
 
   const handleOpenTranscriptionChat = () => {
     setActiveChatAgent('Transcription');
-    setRightChatOpenSignal((current) => current + 1);
     setRightChatExpanded(true);
     setSidebarCollapsed(true);
   };
@@ -157,7 +155,7 @@ export default function App() {
         </main>
       </div>
 
-      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} activeAgentName={activeChatAgent} openSignal={rightChatOpenSignal} />
+      <RightSidebar expanded={rightChatExpanded} onToggle={handleRightChatToggle} activeAgentName={activeChatAgent} />
     </div>
   );
 }
@@ -241,6 +239,40 @@ function CampaignMonitorPanel() {
           chartData={facebookCampaignData.chartData}
           funnelData={facebookCampaignData.funnelData}
         />
+      </div>
+
+      <div className="mt-8">
+        <SectionLabel label="Organic Campaign" />
+        <div className="grid gap-5" style={{ gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}>
+          <CampaignCard
+            platform="site"
+            title="Site access"
+            reach={organicSiteCampaignData.reach}
+            newLeads24h={organicSiteCampaignData.newLeads24h}
+            leadConvRate={organicSiteCampaignData.leadConvRate}
+            salesConvRate={organicSiteCampaignData.salesConvRate}
+            productSales={organicSiteCampaignData.productSales}
+            trend={organicSiteCampaignData.trend}
+            trendUp={organicSiteCampaignData.trendUp}
+            status={organicSiteCampaignData.status}
+            chartData={organicSiteCampaignData.chartData}
+            funnelData={organicSiteCampaignData.funnelData}
+          />
+          <CampaignCard
+            platform="youtube"
+            title="Youtube Access"
+            reach={organicYoutubeCampaignData.reach}
+            newLeads24h={organicYoutubeCampaignData.newLeads24h}
+            leadConvRate={organicYoutubeCampaignData.leadConvRate}
+            salesConvRate={organicYoutubeCampaignData.salesConvRate}
+            productSales={organicYoutubeCampaignData.productSales}
+            trend={organicYoutubeCampaignData.trend}
+            trendUp={organicYoutubeCampaignData.trendUp}
+            status={organicYoutubeCampaignData.status}
+            chartData={organicYoutubeCampaignData.chartData}
+            funnelData={organicYoutubeCampaignData.funnelData}
+          />
+        </div>
       </div>
     </>
   );

@@ -307,7 +307,7 @@ export default function EmailPanel() {
                 className="w-full text-left"
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '65px minmax(150px, 185px) minmax(0, 1fr) minmax(160px, 230px)',
+                  gridTemplateColumns: '65px minmax(150px, 185px) minmax(0, 1fr) 155px',
                   gap: 12,
                   alignItems: 'center',
                   height: 44,
@@ -416,7 +416,16 @@ export default function EmailPanel() {
 
                 <div
                   className="flex items-center gap-1.5 min-w-0"
-                  style={{ flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center', textAlign: 'right', minWidth: 160, width: '100%', maxWidth: 230, overflow: 'hidden' }}
+                  style={{
+                    flexWrap: 'wrap',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    textAlign: 'right',
+                    minWidth: 155,
+                    width: 155,
+                    maxWidth: 155,
+                    overflow: 'hidden',
+                  }}
                 >
                   {email.tags.map((tag) => (
                     <EmailTag key={`${email.id}-${tag}`} tag={tag} />
@@ -471,23 +480,6 @@ export default function EmailPanel() {
               ))}
             </div>
 
-            {selectedEmail.urgencySignal && (
-              <div
-                className="rounded-xl"
-                style={{
-                  marginBottom: 14,
-                  padding: '10px 12px',
-                  background: 'rgba(248,113,113,0.09)',
-                  border: '1px solid rgba(248,113,113,0.25)',
-                  color: '#FCA5A5',
-                  fontSize: 11,
-                  fontWeight: 700,
-                }}
-              >
-                Urgency signal: {selectedEmail.urgencySignal}
-              </div>
-            )}
-
             <div
               className="rounded-xl"
               style={{
@@ -508,29 +500,6 @@ export default function EmailPanel() {
           </div>
 
           <div className="flex flex-col min-h-0" style={{ padding: 16 }}>
-            <div
-              className="rounded-xl"
-              style={{
-                marginBottom: 10,
-                padding: '8px 10px',
-                background: 'rgba(44,194,238,0.09)',
-                border: '1px solid rgba(44,194,238,0.22)',
-              }}
-            >
-              <pre
-                style={{
-                  margin: 0,
-                  color: '#9BE7FB',
-                  fontSize: 11,
-                  fontFamily: 'ui-monospace, SFMono-Regular, Consolas, monospace',
-                  fontWeight: 800,
-                  lineHeight: 1.2,
-                }}
-              >
-                {'---------\nDRAFT\n---------'}
-              </pre>
-            </div>
-
             <textarea
               aria-label="AI generated email draft"
               value={selectedDraft}

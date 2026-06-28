@@ -135,15 +135,17 @@ html, body, #root {
 }
 
 .knowledge-graph-flow .react-flow__node {
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  will-change: transform;
 }
 
 .knowledge-graph-flow .react-flow__node:hover {
-  transform: translateY(-1px);
+  cursor: grab;
 }
 
 .knowledge-graph-flow .react-flow__node.dragging {
   cursor: grabbing;
+  transition: none;
 }
 
 .knowledge-graph-flow .react-flow__edge path {

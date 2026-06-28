@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import ReactFlow, {
   Background,
   BaseEdge,
   Controls,
   MiniMap,
+  useNodesState,
   type Edge,
   type EdgeProps,
   type Node,
@@ -20,7 +21,7 @@ import {
   meetingTranscriptions,
   userActivityFeed,
 } from '../mockData';
-import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD, SURFACE_RAISED } from '../theme';
+import { BLUE_PRIMARY, BORDER_DEFAULT, BORDER_SUBTLE, SURFACE_CARD } from '../theme';
 
 type GraphNodeKind = 'core' | 'domain' | 'record';
 
@@ -363,17 +364,67 @@ function getNodeStyle(meta: GraphMeta, isSelected: boolean): React.CSSProperties
   };
 }
 
+function getRelationTagStyle(accent: string): React.CSSProperties {
+  return {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    maxWidth: '100%',
+    padding: '5px 10px',
+    borderRadius: 999,
+    background: `${accent}14`,
+    border: `1px solid ${accent}33`,
+    color: accent,
+    fontSize: 10,
+    fontWeight: 800,
+    lineHeight: 1,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  };
+}
+
+function createGraphNodes(selectedNodeId: string): Node[] {
+  return graphMeta.map((meta) => ({
+    id: meta.id,
+    position: nodePositions[meta.id],
+    data: { label: meta.label },
+    style: getNodeStyle(meta, meta.id === selectedNodeId),
+  }));
+}
+
+const initialGraphNodes = createGraphNodes('hub');
+
 export default function KnowledgeGraphPanel() {
   const [selectedNodeId, setSelectedNodeId] = useState('hub');
-  const [nodePositionsById, setNodePositionsById] = useState(nodePositions);
+  const [graphNodes, setGraphNodes, onNodesChange] = useNodesState(initialGraphNodes);
   const selectedNode = graphMeta.find((node) => node.id === selectedNodeId) || graphMeta[0];
   const relatedEdges = relationshipEdges.filter((edge) => edge.source === selectedNode.id || edge.target === selectedNode.id);
+  const nodePositionsById = useMemo(
+    () => new Map(graphNodes.map((node) => [node.id, node.position])),
+    [graphNodes]
+  );
 
-  const graphEdges: Edge[] = relationshipEdges.map((edge) => {
+  useEffect(() => {
+    setGraphNodes((currentNodes) =>
+      currentNodes.map((node) => {
+        const meta = graphMetaById.get(node.id);
+        if (!meta) return node;
+
+        return {
+          ...node,
+          data: { label: meta.label },
+          style: getNodeStyle(meta, node.id === selectedNodeId),
+        };
+      })
+    );
+  }, [selectedNodeId, setGraphNodes]);
+
+  const graphEdges: Edge[] = useMemo(() => relationshipEdges.map((edge) => {
     const isConnectedToSelected = edge.source === selectedNodeId || edge.target === selectedNodeId;
     const selectedAccent = selectedNode.accent;
-    const sourceCenter = nodePositionsById[edge.source] || nodePositions[edge.source] || { x: 0, y: 0 };
-    const targetCenter = nodePositionsById[edge.target] || nodePositions[edge.target] || { x: 0, y: 0 };
+    const sourceCenter = nodePositionsById.get(edge.source) || nodePositions[edge.source] || { x: 0, y: 0 };
+    const targetCenter = nodePositionsById.get(edge.target) || nodePositions[edge.target] || { x: 0, y: 0 };
     const sourceRadius = getNodeSize(graphMetaById.get(edge.source)) / 2;
     const targetRadius = getNodeSize(graphMetaById.get(edge.target)) / 2;
 
@@ -391,20 +442,14 @@ export default function KnowledgeGraphPanel() {
         opacity: isConnectedToSelected ? 1 : 0.58,
       },
     };
-  });
+  }), [nodePositionsById, selectedNode.accent, selectedNodeId]);
 
-  const graphNodes: Node[] = graphMeta.map((meta) => ({
-    id: meta.id,
-    position: nodePositionsById[meta.id],
-    data: { label: meta.label },
-    style: getNodeStyle(meta, meta.id === selectedNodeId),
-  }));
+  const handleNodeDragStart: NodeDragHandler = (_, node) => {
+    setSelectedNodeId(node.id);
+  };
 
-  const handleNodeDrag: NodeDragHandler = (_, node) => {
-    setNodePositionsById((current) => ({
-      ...current,
-      [node.id]: node.position,
-    }));
+  const handleNodeDragStop: NodeDragHandler = (_, node) => {
+    setSelectedNodeId(node.id);
   };
 
   return (
@@ -436,24 +481,27 @@ export default function KnowledgeGraphPanel() {
         </div>
       </div>
 
-      <div className="grid gap-4 flex-1 min-h-[640px]" style={{ gridTemplateColumns: 'minmax(0, 1fr) 320px' }}>
+      <div className="grid gap-4 flex-1 min-h-[640px]" style={{ gridTemplateColumns: 'minmax(0, 1fr) 345px' }}>
         <div
-          className="rounded-2xl overflow-hidden"
+          className="relative rounded-2xl overflow-hidden"
           style={{ background: '#101016', border: `1px solid ${BORDER_DEFAULT}` }}
         >
           <ReactFlow
             nodes={graphNodes}
             edges={graphEdges}
             edgeTypes={edgeTypes}
+            onNodesChange={onNodesChange}
             onNodeClick={(_, node) => setSelectedNodeId(node.id)}
-            onNodeDrag={handleNodeDrag}
-            onNodeDragStop={handleNodeDrag}
+            onNodeDragStart={handleNodeDragStart}
+            onNodeDragStop={handleNodeDragStop}
             nodeOrigin={[0.5, 0.5]}
             fitView
             fitViewOptions={{ padding: 0.2 }}
             minZoom={0.35}
             maxZoom={1.25}
             nodesDraggable
+            nodeDragThreshold={4}
+            panOnDrag
             proOptions={{ hideAttribution: true }}
             className="knowledge-graph-flow"
           >
@@ -461,7 +509,18 @@ export default function KnowledgeGraphPanel() {
             <MiniMap
               nodeColor={(node) => graphMeta.find((item) => item.id === node.id)?.accent || BLUE_PRIMARY}
               maskColor="rgba(0,0,0,0.42)"
-              style={{ background: '#15151b', border: `1px solid ${BORDER_DEFAULT}`, borderRadius: 8 }}
+              style={{
+                position: 'absolute',
+                right: 8,
+                bottom: 8,
+                width: 140,
+                height: 105,
+                background: '#15151b',
+                border: `1px solid ${BORDER_DEFAULT}`,
+                borderRadius: 6,
+                zIndex: 40,
+                boxShadow: '0 14px 32px rgba(0,0,0,0.35)',
+              }}
             />
             <Controls showInteractive={false} />
           </ReactFlow>
@@ -472,34 +531,27 @@ export default function KnowledgeGraphPanel() {
           style={{ background: SURFACE_CARD, border: `1px solid ${BORDER_DEFAULT}` }}
         >
           <div>
-            <span
-              className="rounded-full inline-flex"
-              style={{
-                padding: '4px 8px',
-                color: selectedNode.accent,
-                background: `${selectedNode.accent}14`,
-                border: `1px solid ${selectedNode.accent}33`,
-                fontSize: 10,
-                fontWeight: 800,
-              }}
-            >
-              {selectedNode.category}
-            </span>
-            <h2 style={{ margin: '12px 0 0', color: 'rgba(255,255,255,0.88)', fontSize: 18, lineHeight: 1.22 }}>
-              {selectedNode.label}
-            </h2>
+            <div className="flex items-center justify-between gap-3" style={{ minWidth: 0 }}>
+              <h2 style={{ margin: 0, color: 'rgba(255,255,255,0.88)', fontSize: 18, lineHeight: 1.22, minWidth: 0 }}>
+                {selectedNode.label}
+              </h2>
+              <span
+                className="rounded-full inline-flex flex-shrink-0"
+                style={{
+                  padding: '4px 8px',
+                  color: selectedNode.accent,
+                  background: `${selectedNode.accent}14`,
+                  border: `1px solid ${selectedNode.accent}33`,
+                  fontSize: 10,
+                  fontWeight: 800,
+                }}
+              >
+                {selectedNode.category}
+              </span>
+            </div>
             <p style={{ margin: '9px 0 0', color: 'rgba(255,255,255,0.58)', fontSize: 12, lineHeight: 1.45 }}>
               {selectedNode.summary}
             </p>
-          </div>
-
-          <div className="rounded-xl p-3" style={{ background: SURFACE_RAISED, border: `1px solid ${BORDER_SUBTLE}` }}>
-            <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 10, fontWeight: 800, marginBottom: 8 }}>
-              SOURCE
-            </div>
-            <div style={{ color: 'rgba(255,255,255,0.72)', fontSize: 12, fontWeight: 700 }}>
-              {selectedNode.source}
-            </div>
           </div>
 
           <div>
@@ -520,28 +572,20 @@ export default function KnowledgeGraphPanel() {
             <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 10, fontWeight: 800, marginBottom: 8 }}>
               RELATIONS
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-wrap gap-2">
               {relatedEdges.map((edge) => {
                 const relatedId = edge.source === selectedNode.id ? edge.target : edge.source;
                 const related = graphMeta.find((node) => node.id === relatedId);
+                const tagAccent = related?.accent || selectedNode.accent;
                 return (
                   <button
                     key={edge.id}
-                    className="rounded-xl text-left"
+                    className="text-left"
                     onClick={() => setSelectedNodeId(relatedId)}
-                    style={{
-                      padding: '9px 10px',
-                      background: SURFACE_RAISED,
-                      border: `1px solid ${BORDER_SUBTLE}`,
-                      cursor: 'pointer',
-                    }}
+                    title={related?.label || relatedId}
+                    style={getRelationTagStyle(tagAccent)}
                   >
-                    <div style={{ color: 'rgba(255,255,255,0.76)', fontSize: 12, fontWeight: 750 }}>
-                      {related?.label || relatedId}
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.38)', fontSize: 10, marginTop: 3 }}>
-                      {String(edge.data?.relation || 'related')}
-                    </div>
+                    <span>{String(edge.data?.relation || 'related')}</span>
                   </button>
                 );
               })}
