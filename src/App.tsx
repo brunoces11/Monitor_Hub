@@ -16,6 +16,7 @@ import VideoPublisherTable from './components/VideoPublisherTable';
 import AgentsPanel from './components/AgentsPanel';
 import TranscriptionCard from './components/TranscriptionCard';
 import KnowledgeGraphPanel from './components/KnowledgeGraphPanel';
+import EmailPanel from './components/EmailPanel';
 import {
   creativeGenerationData,
   videoAnimationsData,
@@ -43,6 +44,7 @@ const sectionLabels: Record<string, string> = {
   agents: 'Agent Manager',
   transcriptor: 'Transcriptor Agent',
   'knowledge-graph': 'Memory Graph',
+  emails: 'AI Email Inbox',
 };
 
 const UI_STATE_STORAGE_KEY = 'monitor-hub-ui-state';
@@ -82,7 +84,11 @@ export default function App() {
   const [rightChatOpenSignal, setRightChatOpenSignal] = useState(0);
   const [activeChatAgent, setActiveChatAgent] = useState<string | null>(persistedUiState?.activeChatAgent ?? null);
   const [activeSection, setActiveSection] = useState(persistedUiState?.activeSection ?? 'overview');
-  const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' || activeSection === 'knowledge-graph' ? '24px 24px 24px' : '20px 8px 8px';
+  const mainPadding = activeSection === 'agents' || activeSection === 'transcriptor' || activeSection === 'knowledge-graph'
+    ? '24px 24px 24px'
+    : activeSection === 'emails'
+      ? '14px 8px 8px'
+      : '20px 8px 8px';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -130,6 +136,7 @@ export default function App() {
         active={activeSection}
         onToggle={() => setSidebarCollapsed((v) => !v)}
         onActiveChange={setActiveSection}
+        onOpenEmails={() => setActiveSection('emails')}
       />
 
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
@@ -142,7 +149,8 @@ export default function App() {
             {activeSection === 'agents' && <AgentsPanel onOpenAgentChat={handleOpenAgentChat} />}
             {activeSection === 'transcriptor' && <TranscriptorPanel onOpenTranscriptionChat={handleOpenTranscriptionChat} />}
             {activeSection === 'knowledge-graph' && <KnowledgeGraphPanel />}
-            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'leads-revenue' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && activeSection !== 'knowledge-graph' && (
+            {activeSection === 'emails' && <EmailPanel />}
+            {activeSection !== 'overview' && activeSection !== 'campaign-monitor' && activeSection !== 'leads-revenue' && activeSection !== 'creative-studio' && activeSection !== 'agents' && activeSection !== 'transcriptor' && activeSection !== 'knowledge-graph' && activeSection !== 'emails' && (
               <PendingSection title={sectionLabels[activeSection] || 'Section'} />
             )}
           </div>

@@ -23,10 +23,12 @@ interface SidebarProps {
   active: string;
   onToggle: () => void;
   onActiveChange: (id: string) => void;
+  onOpenEmails: () => void;
 }
 
-export default function Sidebar({ collapsed, active, onToggle, onActiveChange }: SidebarProps) {
+export default function Sidebar({ collapsed, active, onToggle, onActiveChange, onOpenEmails }: SidebarProps) {
   const [sidebarTooltip, setSidebarTooltip] = useState<{ label: string; top: number; left: number } | null>(null);
+  const emailActive = active === 'emails';
 
   const showSidebarTooltip = (label: string, target: HTMLElement) => {
     if (!collapsed) return;
@@ -283,14 +285,8 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
               gap: 7,
               padding: collapsed ? 0 : '6px 8px',
             }}
-            onMouseEnter={(e) => {
-              showSidebarTooltip('Alerts', e.currentTarget);
-              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
-            }}
-            onMouseLeave={(e) => {
-              setSidebarTooltip(null);
-              (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
-            }}
+            onMouseEnter={(e) => showSidebarTooltip('Alerts', e.currentTarget)}
+            onMouseLeave={() => setSidebarTooltip(null)}
             onFocus={(e) => showSidebarTooltip('Alerts', e.currentTarget)}
             onBlur={() => setSidebarTooltip(null)}
             aria-label="Alerts"
@@ -321,12 +317,13 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
           </button>
 
           <button
+            onClick={onOpenEmails}
             className="relative flex items-center rounded-xl min-w-0"
             style={{
               width: collapsed ? 38 : 'auto',
               height: 38,
-              background: SURFACE_RAISED,
-              border: `1px solid ${BORDER_DEFAULT}`,
+              background: emailActive ? BLUE_GRADIENT : SURFACE_RAISED,
+              border: `1px solid ${emailActive ? 'rgba(255,255,255,0.2)' : BORDER_DEFAULT}`,
               cursor: 'pointer',
               flex: collapsed ? '0 0 auto' : 1,
               justifyContent: collapsed ? 'center' : 'flex-start',
@@ -335,18 +332,17 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
             }}
             onMouseEnter={(e) => {
               showSidebarTooltip('Emails', e.currentTarget);
-              (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.14)';
             }}
             onMouseLeave={(e) => {
               setSidebarTooltip(null);
-              (e.currentTarget as HTMLButtonElement).style.borderColor = BORDER_DEFAULT;
+              (e.currentTarget as HTMLButtonElement).style.borderColor = emailActive ? 'rgba(255,255,255,0.2)' : BORDER_DEFAULT;
             }}
             onFocus={(e) => showSidebarTooltip('Emails', e.currentTarget)}
             onBlur={() => setSidebarTooltip(null)}
             aria-label="Emails"
           >
             <span className="relative flex items-center justify-center flex-shrink-0" style={{ width: 18, height: 18 }}>
-              <PIcon name="email" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'email notifications' }} />
+              <PIcon name="email" size="small" color="primary" theme="dark" aria={{ 'aria-label': 'email notifications' }} style={{ color: emailActive ? '#fff' : undefined }} />
               <span
                 className="absolute rounded-full flex items-center justify-center"
                 style={{
@@ -360,11 +356,11 @@ export default function Sidebar({ collapsed, active, onToggle, onActiveChange }:
                   color: '#fff',
                 }}
               >
-                7
+                5
               </span>
             </span>
             {!collapsed && (
-              <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0 }}>
+              <PText size="xx-small" weight="semi-bold" theme="dark" color="primary" style={{ minWidth: 0, color: emailActive ? '#fff' : undefined }}>
                 Emails
               </PText>
             )}

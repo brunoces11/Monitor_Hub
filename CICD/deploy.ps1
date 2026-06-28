@@ -5,7 +5,7 @@ $WorkDirWin = "C:\Users\Bruno\Desktop\GITHUB\MONITOR_HUB"
 $WorkDirWsl = "/mnt/c/Users/Bruno/Desktop/GITHUB/MONITOR_HUB"
 $LocalCompose = "C:\Users\Bruno\Desktop\compose\hub_monitor.yml"
 $Image = "ghcr.io/brunoces11/monitor-hub"
-$Version = "v1.0.3"
+$Version = "v1.0.4"
 $Vps = "contabo"
 $RemoteCompose = "/compose/hub_monitor.yml"
 

@@ -11,7 +11,9 @@ type VideoItem = {
   title: string;
   description: string;
   tags: string[];
+  hasVideo: boolean;
   hasThumb: boolean;
+  thumbSrc: string;
   date: string;
   status: 'Scheduled' | 'Published' | 'Draft';
   platforms: Platform[];
@@ -23,6 +25,11 @@ type EditState = {
   value: string;
 } | null;
 
+type CalendarState = {
+  itemId: number;
+  draftDate: string;
+} | null;
+
 const initialVideos: VideoItem[] = [
   {
     id: 1,
@@ -30,7 +37,9 @@ const initialVideos: VideoItem[] = [
     title: 'Lovable Introduction: Build faster product experiences with AI',
     description: 'Short intro video showing how Lovable helps teams prototype, iterate, and publish product ideas quickly.',
     tags: ['lovable', 'ai-builder', 'product-demo'],
+    hasVideo: true,
     hasThumb: true,
+    thumbSrc: '/thumbnails/video-publisher-01.png',
     date: 'Jun 24',
     status: 'Scheduled',
     platforms: ['youtube', 'linkedin', 'facebook'],
@@ -41,7 +50,9 @@ const initialVideos: VideoItem[] = [
     title: 'Lovable Workflow Overview for marketing operations',
     description: 'A concise walkthrough for turning campaign notes into a polished landing page and launch-ready assets.',
     tags: ['workflow', 'automation', 'launch'],
+    hasVideo: true,
     hasThumb: true,
+    thumbSrc: '/thumbnails/video-publisher-02.png',
     date: 'Jun 28',
     status: 'Draft',
     platforms: ['instagram'],
@@ -138,10 +149,14 @@ function StaticCalendar({
   selectedDate,
   onClose,
   onSelectDate,
+  onConfirm,
+  onSchedule,
 }: {
   selectedDate: string;
   onClose: () => void;
   onSelectDate: (date: string) => void;
+  onConfirm: () => void;
+  onSchedule: () => void;
 }) {
   const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   const dates = Array.from({ length: 30 }, (_, index) => index + 1);
@@ -151,7 +166,6 @@ function StaticCalendar({
     <>
       <button
         aria-label="Close calendar"
-        onClick={onClose}
         style={{
           position: 'fixed',
           inset: 0,
@@ -161,10 +175,10 @@ function StaticCalendar({
           cursor: 'default',
         }}
       />
-      <div
+    <div
         className="absolute left-0 top-full mt-2 rounded-xl p-3"
         style={{
-        width: 220,
+          width: 220,
           background: SURFACE_RAISED,
           border: `1px solid ${BORDER_DEFAULT}`,
           boxShadow: '0 16px 34px rgba(0,0,0,0.32)',
@@ -224,6 +238,38 @@ function StaticCalendar({
             );
           })}
         </div>
+        <div className="flex items-center justify-end gap-2 mt-3">
+          <button
+            className="rounded-md"
+            onClick={onConfirm}
+            style={{
+              background: 'rgba(255,255,255,0.06)',
+              border: `1px solid ${BORDER_DEFAULT}`,
+              color: 'rgba(255,255,255,0.72)',
+              cursor: 'pointer',
+              fontSize: 10,
+              fontWeight: 700,
+              padding: '4px 8px',
+            }}
+          >
+            OK
+          </button>
+          <button
+            className="rounded-md"
+            onClick={onSchedule}
+            style={{
+              background: '#4ADE80',
+              border: '1px solid rgba(74,222,128,0.18)',
+              color: '#071016',
+              cursor: 'pointer',
+              fontSize: 10,
+              fontWeight: 800,
+              padding: '4px 8px',
+            }}
+          >
+            Schedule
+          </button>
+        </div>
       </div>
     </>
   );
@@ -233,7 +279,7 @@ export default function VideoPublisherTable() {
   const [videos, setVideos] = useState(initialVideos);
   const [editState, setEditState] = useState<EditState>(null);
   const [thumbItem, setThumbItem] = useState<VideoItem | null>(null);
-  const [openCalendarId, setOpenCalendarId] = useState<number | null>(null);
+  const [calendarState, setCalendarState] = useState<CalendarState>(null);
   const [openStatusId, setOpenStatusId] = useState<number | null>(null);
   const [pendingStatusId, setPendingStatusId] = useState<number | null>(null);
 
@@ -289,9 +335,46 @@ export default function VideoPublisherTable() {
     }, 2000);
   }
 
-  function updateDate(itemId: number, date: string) {
-    setVideos((current) => current.map((item) => (item.id === itemId ? { ...item, date } : item)));
-    setOpenCalendarId(null);
+  function updateDateAndStatus(itemId: number, date: string, status: VideoItem['status']) {
+    setOpenStatusId(null);
+    setPendingStatusId(itemId);
+    window.setTimeout(() => {
+      setVideos((current) =>
+        current.map((item) => (item.id === itemId ? { ...item, date, status } : item))
+      );
+      setPendingStatusId((current) => (current === itemId ? null : current));
+    }, 2000);
+  }
+
+  function openCalendar(item: VideoItem) {
+    setCalendarState((current) =>
+      current?.itemId === item.id
+        ? null
+        : {
+            itemId: item.id,
+            draftDate: item.date,
+          }
+    );
+  }
+
+  function confirmCalendar(scheduleVideo: boolean) {
+    if (!calendarState) return;
+
+    if (scheduleVideo) {
+      updateDateAndStatus(calendarState.itemId, calendarState.draftDate, 'Scheduled');
+    } else {
+      setVideos((current) =>
+        current.map((item) =>
+          item.id === calendarState.itemId
+            ? {
+                ...item,
+                date: calendarState.draftDate,
+              }
+            : item
+        )
+      );
+    }
+    setCalendarState(null);
   }
 
   function deleteThumb(itemId: number) {
@@ -329,22 +412,23 @@ export default function VideoPublisherTable() {
           }}
         >
           <colgroup>
+            <col style={{ width: '4.5%', minWidth: 44 }} />
+            <col style={{ width: '6%', minWidth: 70 }} />
             <col style={{ width: '12%', minWidth: 80 }} />
             <col style={{ width: '18%', minWidth: 160 }} />
-            <col style={{ width: '24%', minWidth: 170 }} />
+            <col style={{ width: '22.5%', minWidth: 170 }} />
             <col style={{ width: '9%', minWidth: 92 }} />
-            <col style={{ width: '5%', minWidth: 52 }} />
+            <col style={{ width: '1.5%', minWidth: 26 }} />
+            <col style={{ width: '1.5%', minWidth: 26 }} />
+            <col style={{ width: '1.5%', minWidth: 26 }} />
+            <col style={{ width: '1.5%', minWidth: 26 }} />
+            <col style={{ width: '1.5%', minWidth: 26 }} />
             <col style={{ width: '7%', minWidth: 52 }} />
-            <col style={{ width: '1.5%', minWidth: 26 }} />
-            <col style={{ width: '1.5%', minWidth: 26 }} />
-            <col style={{ width: '1.5%', minWidth: 26 }} />
-            <col style={{ width: '1.5%', minWidth: 26 }} />
-            <col style={{ width: '1.5%', minWidth: 26 }} />
             <col style={{ width: '12.5%', minWidth: 112 }} />
           </colgroup>
           <thead>
             <tr>
-              {['Name', 'Title', 'Description', 'Tags', 'Thumb', 'Date'].map((header) => (
+              {['Video', 'Thumb', 'Name', 'Title', 'Description', 'Tags'].map((header) => (
                 <th key={header} style={{ ...headerStyle, whiteSpace: 'normal' }}>
                   {header}
                 </th>
@@ -363,12 +447,60 @@ export default function VideoPublisherTable() {
                   </div>
                 </th>
               ))}
+              <th style={{ ...headerStyle, whiteSpace: 'normal' }}>Date</th>
               <th style={headerStyle}>Status</th>
             </tr>
           </thead>
           <tbody>
             {videos.map((item) => (
               <tr key={item.id}>
+                <td style={{ ...cellStyle, textAlign: 'center', padding: '7px 6px' }}>
+                  <button
+                    className="rounded-lg inline-flex items-center justify-center"
+                    style={{
+                      width: 28,
+                      height: 28,
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'default',
+                    }}
+                    aria-label={`${item.name} video ready`}
+                  >
+                    {item.hasVideo && (
+                      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                        <path d="M6.5 12.5 10.1 16.1 17.7 8.5" fill="none" stroke="#4ADE80" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </button>
+                </td>
+                <td style={{ ...cellStyle, textAlign: 'center' }}>
+                  <button
+                    className="inline-flex items-center justify-center"
+                    style={{
+                      width: 55,
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                    onClick={() => setThumbItem(item)}
+                    aria-label={`Open ${item.name} thumb`}
+                  >
+                    {item.hasThumb && (
+                      <img
+                        src={item.thumbSrc}
+                        alt={`${item.name} thumbnail`}
+                        style={{
+                          width: 55,
+                          height: 'auto',
+                          display: 'block',
+                          borderRadius: 4,
+                          border: `1px solid ${BORDER_SUBTLE}`,
+                        }}
+                      />
+                    )}
+                  </button>
+                </td>
                 <td style={cellStyle}>
                   <span style={{ color: 'rgba(255,255,255,0.82)', fontWeight: 700 }}>{item.name}</span>
                 </td>
@@ -400,51 +532,6 @@ export default function VideoPublisherTable() {
                     <EllipsisButton onClick={() => openEdit(item, 'tags')} label={`Edit ${item.name} tags`} />
                   </div>
                 </td>
-                <td style={{ ...cellStyle, textAlign: 'center' }}>
-                    <button
-                      className="rounded-lg inline-flex items-center justify-center"
-                      style={{
-                        width: 28,
-                        height: 28,
-                        background: 'transparent',
-                        border: 'none',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => setThumbItem(item)}
-                      aria-label={`Open ${item.name} thumb`}
-                    >
-                      {item.hasThumb && (
-                      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                        <path d="M6.5 12.5 10.1 16.1 17.7 8.5" fill="none" stroke="#4ADE80" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                  </button>
-                </td>
-                <td style={compactCellStyle}>
-                  <div className="relative">
-                    <button
-                      className="rounded-lg"
-                      style={{
-                        background: 'rgba(255,255,255,0.04)',
-                        border: `1px solid ${BORDER_SUBTLE}`,
-                        color: 'rgba(255,255,255,0.72)',
-                        cursor: 'pointer',
-                        fontSize: 9.35,
-                        padding: '3px 6px',
-                      }}
-                      onClick={() => setOpenCalendarId((current) => (current === item.id ? null : item.id))}
-                    >
-                      {item.date}
-                    </button>
-                    {openCalendarId === item.id && (
-                      <StaticCalendar
-                        selectedDate={item.date}
-                        onClose={() => setOpenCalendarId(null)}
-                        onSelectDate={(date) => updateDate(item.id, date)}
-                      />
-                    )}
-                  </div>
-                </td>
                 {socialColumns.map((column) => (
                   <td key={column.key} style={{ ...cellStyle, textAlign: 'center' }}>
                     <div className="flex items-center justify-center">
@@ -458,6 +545,33 @@ export default function VideoPublisherTable() {
                     </div>
                   </td>
                 ))}
+                <td style={compactCellStyle}>
+                  <div className="relative">
+                    <button
+                      className="rounded-lg"
+                      style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: `1px solid ${BORDER_SUBTLE}`,
+                        color: 'rgba(255,255,255,0.72)',
+                        cursor: 'pointer',
+                        fontSize: 9.35,
+                        padding: '3px 6px',
+                      }}
+                      onClick={() => openCalendar(item)}
+                    >
+                      {calendarState?.itemId === item.id ? calendarState.draftDate : item.date}
+                    </button>
+                    {calendarState?.itemId === item.id && (
+                      <StaticCalendar
+                        selectedDate={calendarState.draftDate}
+                        onClose={() => setCalendarState(null)}
+                        onSelectDate={(date) => setCalendarState((current) => (current ? { ...current, draftDate: date } : current))}
+                        onConfirm={() => confirmCalendar(false)}
+                        onSchedule={() => confirmCalendar(true)}
+                      />
+                    )}
+                  </div>
+                </td>
                 <td style={cellStyle}>
                   <div className="relative">
                     <button
@@ -595,24 +709,47 @@ export default function VideoPublisherTable() {
 
       {thumbItem && (
         <div style={overlayStyle}>
-          <div className="rounded-2xl p-5" style={{ ...modalStyle, width: 520 }}>
+          <div className="rounded-2xl p-5 relative" style={{ ...modalStyle, width: 720 }}>
+            <button
+              className="rounded-lg flex items-center justify-center"
+              onClick={() => setThumbItem(null)}
+              style={{
+                position: 'absolute',
+                top: 14,
+                right: 14,
+                width: 28,
+                height: 28,
+                background: 'rgba(255,255,255,0.06)',
+                border: `1px solid ${BORDER_SUBTLE}`,
+                color: 'rgba(255,255,255,0.72)',
+                cursor: 'pointer',
+                fontSize: 15,
+                fontWeight: 700,
+                lineHeight: 1,
+              }}
+              aria-label="Close thumbnail preview"
+            >
+              X
+            </button>
             <PText size="medium" weight="semi-bold" theme="dark" color="primary">
               Thumb - {thumbItem.name}
             </PText>
             <div
-              className="rounded-xl mt-4 flex items-center justify-center"
+              className="rounded-xl mt-4 flex items-center justify-center overflow-hidden"
               style={{
-                height: 250,
-                background: `linear-gradient(135deg, rgba(44,194,238,0.18), rgba(90,118,241,0.18)), ${SURFACE_RAISED}`,
+                background: SURFACE_RAISED,
                 border: `1px solid ${BORDER_DEFAULT}`,
               }}
             >
-              <div className="text-center">
-                <PIcon name="image" size="large" color="inherit" theme="dark" aria={{ 'aria-label': 'thumb preview' }} style={{ color: BLUE_PRIMARY }} />
-                <PText size="small" weight="semi-bold" theme="dark" color="primary">
-                  Lovable video thumb preview
-                </PText>
-              </div>
+              <img
+                src={thumbItem.thumbSrc}
+                alt={`${thumbItem.name} thumbnail preview`}
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block',
+                }}
+              />
             </div>
             <div className="flex justify-end gap-2 mt-4">
               <button style={secondaryButtonStyle} onClick={() => replaceThumb(thumbItem.id)}>
@@ -621,8 +758,8 @@ export default function VideoPublisherTable() {
               <button style={secondaryButtonStyle} onClick={() => deleteThumb(thumbItem.id)}>
                 Delete
               </button>
-              <button style={primaryButtonStyle} onClick={() => setThumbItem(null)}>
-                Close
+              <button style={secondaryButtonStyle} onClick={() => setThumbItem(null)}>
+                OK
               </button>
             </div>
           </div>
