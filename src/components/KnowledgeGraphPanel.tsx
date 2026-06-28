@@ -351,8 +351,9 @@ function getNodeStyle(meta: GraphMeta, isSelected: boolean): React.CSSProperties
     borderRadius: '999px',
     color: 'rgba(255,255,255,0.84)',
     boxShadow: isSelected ? `0 0 0 4px ${meta.accent}26, 0 18px 40px rgba(0,0,0,0.28)` : '0 12px 30px rgba(0,0,0,0.16)',
-    fontSize: meta.kind === 'core' ? 12 : 10,
-    fontWeight: 750,
+    fontSize: meta.kind === 'core' ? 17 : 15,
+    fontWeight: 500,
+    letterSpacing: '0.1em',
     lineHeight: 1.18,
     textAlign: 'center',
     display: 'flex',
@@ -481,7 +482,7 @@ export default function KnowledgeGraphPanel() {
         </div>
       </div>
 
-      <div className="grid gap-4 flex-1 min-h-[640px]" style={{ gridTemplateColumns: 'minmax(0, 1fr) 345px' }}>
+      <div className="grid gap-4 flex-1 min-h-[640px]" style={{ gridTemplateColumns: 'minmax(0, 1fr) 300px' }}>
         <div
           className="relative rounded-2xl overflow-hidden"
           style={{ background: '#101016', border: `1px solid ${BORDER_DEFAULT}` }}

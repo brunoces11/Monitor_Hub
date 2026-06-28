@@ -27,7 +27,9 @@ const defaultChatMessages: ChatMessage[] = [
 ];
 
 const COLLAPSED_WIDTH = 60;
-const EXPANDED_WIDTH = 505;
+const DEFAULT_EXPANDED_WIDTH = 390;
+const MIN_EXPANDED_WIDTH = 380;
+const MAX_EXPANDED_WIDTH = 760;
 
 function readPersistedChatMessages(): ChatMessage[] {
   if (typeof window === 'undefined') return defaultChatMessages;
@@ -84,8 +86,11 @@ function buildAssistantReply(userText: string, activeAgentName?: string | null) 
 export default function RightSidebar({ expanded, onToggle, activeAgentName }: RightSidebarProps) {
   const [draftMessage, setDraftMessage] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>(readPersistedChatMessages);
+  const [expandedWidth, setExpandedWidth] = useState(DEFAULT_EXPANDED_WIDTH);
+  const [isResizing, setIsResizing] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const replyTimerRef = useRef<number | null>(null);
+  const wasExpandedRef = useRef(expanded);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -96,6 +101,14 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName }: Ri
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [expanded, messages]);
+
+  useEffect(() => {
+    if (expanded && !wasExpandedRef.current) {
+      setExpandedWidth(DEFAULT_EXPANDED_WIDTH);
+    }
+
+    wasExpandedRef.current = expanded;
+  }, [expanded]);
 
   useEffect(() => {
     return () => {
@@ -123,7 +136,7 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName }: Ri
     setMessages((current) => [...current, userMessage]);
     setDraftMessage('');
 
-    replyTimerRef.current = window.setTimeout(() => {
+      replyTimerRef.current = window.setTimeout(() => {
       const assistantMessage: ChatMessage = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
@@ -135,20 +148,69 @@ export default function RightSidebar({ expanded, onToggle, activeAgentName }: Ri
     }, 650);
   };
 
+  const handleResizePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsResizing(true);
+  };
+
+  const handleResizePointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!isResizing) return;
+
+    const nextWidth = window.innerWidth - event.clientX;
+    setExpandedWidth(Math.min(MAX_EXPANDED_WIDTH, Math.max(MIN_EXPANDED_WIDTH, nextWidth)));
+  };
+
+  const handleResizePointerEnd = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!isResizing) return;
+
+    event.currentTarget.releasePointerCapture(event.pointerId);
+    setIsResizing(false);
+  };
+
+  const sidebarWidth = expanded ? expandedWidth : COLLAPSED_WIDTH;
+
   return (
     <aside
-      className="flex flex-col h-full transition-all duration-300"
+      className="flex flex-col h-full"
       style={{
-        width: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-        minWidth: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-        maxWidth: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
-        flexBasis: expanded ? EXPANDED_WIDTH : COLLAPSED_WIDTH,
+        width: sidebarWidth,
+        minWidth: sidebarWidth,
+        maxWidth: sidebarWidth,
+        flexBasis: sidebarWidth,
         flexShrink: 0,
         background: '#0d0d12',
         borderLeft: `1px solid ${BORDER_DEFAULT}`,
         position: 'relative',
+        transition: isResizing ? 'none' : 'width 300ms ease, min-width 300ms ease, max-width 300ms ease, flex-basis 300ms ease',
       }}
     >
+      {expanded && (
+        <button
+          type="button"
+          aria-label="Resize AI chat sidebar"
+          onPointerDown={handleResizePointerDown}
+          onPointerMove={handleResizePointerMove}
+          onPointerUp={handleResizePointerEnd}
+          onPointerCancel={handleResizePointerEnd}
+          className="hub-tooltip"
+          data-tooltip="Resize chat"
+          data-tooltip-side="left"
+          style={{
+            position: 'absolute',
+            left: -4,
+            top: 0,
+            width: 8,
+            height: '100%',
+            padding: 0,
+            border: 'none',
+            background: isResizing ? 'rgba(44,194,238,0.18)' : 'transparent',
+            cursor: 'col-resize',
+            zIndex: 10,
+            touchAction: 'none',
+          }}
+        />
+      )}
       <div
         className="flex items-center flex-shrink-0"
         style={{
